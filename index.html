@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>일본어 쓰기 트레이너</title>
+    <title>일본어 쓰기 & 퀴즈 트레이너</title>
     <style>
         :root {
             --primary-color: #2e7d32;
@@ -36,24 +36,16 @@
             font-size: 1.1rem;
             font-weight: bold;
             color: var(--primary-color);
+            cursor: pointer;
         }
-        .mode-nav {
-            display: flex;
-            gap: 8px;
-        }
-        .nav-btn {
-            padding: 6px 14px;
-            font-size: 0.85rem;
+        .home-btn {
+            padding: 5px 12px;
+            font-size: 0.8rem;
             border: none;
-            border-radius: 16px;
+            border-radius: 12px;
             background: #e9ecef;
             cursor: pointer;
             font-weight: bold;
-            transition: 0.2s;
-        }
-        .nav-btn.active {
-            background: var(--primary-color);
-            color: white;
         }
 
         .main-container {
@@ -63,24 +55,57 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 15px;
+            padding: 20px;
             box-sizing: border-box;
+            justify-content: center;
         }
 
+        /* 카드 컨테이너 */
         .card {
             background: white;
             width: 100%;
-            border-radius: 14px;
-            padding: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border-radius: 16px;
+            padding: 25px 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             box-sizing: border-box;
-            margin-bottom: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            text-align: center;
         }
 
-        /* 50음도 미니멀 그리드 */
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #495057;
+        }
+
+        /* 선택 버튼 스타일 */
+        .menu-btn-group {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        .menu-select-btn {
+            flex: 1;
+            padding: 20px 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            background: #fff;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .menu-select-btn:hover {
+            border-color: var(--primary-color);
+            background: var(--primary-light);
+            color: var(--primary-color);
+        }
+
+        /* 학습 화면 요소들 */
         .grid-container {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -104,7 +129,6 @@
             color: var(--primary-color);
         }
 
-        /* 깔끔해진 캔버스 영역 */
         .canvas-container {
             position: relative;
             background-color: #fff;
@@ -113,6 +137,7 @@
             overflow: hidden;
             width: 280px;
             height: 280px;
+            margin: 10px 0;
         }
         canvas {
             display: block;
@@ -151,68 +176,69 @@
         #clearBtn { background-color: #e9ecef; color: #495057; }
         #submitBtn { background-color: var(--primary-color); color: white; }
 
-        #feedback-container {
-            margin-top: 10px;
-            text-align: center;
-            height: 45px;
-        }
-        .score-display { font-size: 1.4rem; font-weight: 800; }
-        .status-msg { font-size: 0.95rem; font-weight: bold; }
+        .score-display { font-size: 1.4rem; font-weight: 800; margin-top: 5px; }
+        .status-msg { font-size: 0.95rem; font-weight: bold; margin-top: 3px; }
         .pass { color: #1976D2; }
         .fail { color: #E53935; }
 
-        .vocab-box {
-            font-size: 1.6rem;
+        /* 퀴즈 모드 스타일 */
+        .quiz-char-display {
+            font-size: 4rem;
             font-weight: bold;
             color: var(--primary-color);
-            margin-bottom: 3px;
+            margin: 20px 0;
         }
-        .vocab-meaning {
-            font-size: 1rem;
-            color: #6c757d;
-            margin-bottom: 12px;
+        .quiz-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            width: 100%;
+            margin-top: 15px;
         }
-        .unit-selector {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-        .unit-btn {
-            padding: 6px 12px;
-            border-radius: 6px;
-            border: 1px solid #ced4da;
+        .quiz-option-btn {
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: 2px solid #ced4da;
+            border-radius: 10px;
             background: white;
             cursor: pointer;
-            font-weight: bold;
-            font-size: 0.85rem;
+            transition: 0.1s;
         }
-        .unit-btn.active {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
+        .quiz-option-btn:hover { background: #f1f3f5; }
 
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
     <header>
-        <div class="header-title">🇯🇵 일본어 쓰기 트레이너</div>
-        <div class="mode-nav">
-            <button id="navKana" class="nav-btn active" onclick="switchMode('kana')">50음도</button>
-            <button id="navVocab" class="nav-btn" onclick="switchMode('vocab')">단어 연습</button>
-        </div>
+        <div class="header-title" onclick="goHome()">🇯🇵 일본어 트레이너</div>
+        <button id="homeBtn" class="home-btn hidden" onclick="goHome()">처음으로</button>
     </header>
 
     <div class="main-container">
-        <!-- 1. 50음도 학습 모드 -->
-        <div id="modeKana" class="card">
-            <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:10px; align-items:center;">
-                <span id="charTypeTitle" style="font-weight:bold; font-size:1rem;">히라가나 50음도</span>
-                <button class="unit-btn" onclick="toggleCharType()">가타카나 전환</button>
+        <!-- STEP 1: 히라가나 / 가타카나 선택 화면 -->
+        <div id="stepCharSelect" class="card">
+            <div class="section-title">학습할 문자를 선택하세요</div>
+            <div class="menu-btn-group">
+                <button class="menu-select-btn" onclick="selectKanaType('hira')">히라가나<br><span style="font-size:0.85rem; color:#6c757d; font-weight:normal;">あいうえお</span></button>
+                <button class="menu-select-btn" onclick="selectKanaType('kata')">가타카나<br><span style="font-size:0.85rem; color:#6c757d; font-weight:normal;">アイウエオ</span></button>
             </div>
+        </div>
+
+        <!-- STEP 2: 학습 / 퀴즈 모드 선택 화면 -->
+        <div id="stepModeSelect" class="card hidden">
+            <div class="section-title" id="selectedTypeTitle">히라가나 학습</div>
+            <div class="menu-btn-group" style="flex-direction: column;">
+                <button class="menu-select-btn" onclick="startMode('study')">✏️ 기본 쓰기 학습</button>
+                <button class="menu-select-btn" onclick="startMode('quiz')">🎯 랜덤 퀴즈 풀기</button>
+            </div>
+            <button class="action-btn" id="backBtn" style="background:#dee2e6; color:#333; margin-top:10px; width:100%;" onclick="goHome()">문자 다시 고르기</button>
+        </div>
+
+        <!-- STEP 3-1: 쓰기 학습 페이지 -->
+        <div id="modeStudy" class="card hidden" style="padding: 15px;">
             <div class="grid-container" id="kanaGrid"></div>
-            
             <div style="font-size: 1rem; font-weight: bold; margin: 8px 0;" id="currentTargetLabel">현재 글자: あ</div>
             
             <div class="canvas-container">
@@ -225,66 +251,25 @@
                 <button id="submitBtn" class="action-btn" onclick="checkScore()">채점하기</button>
             </div>
 
-            <div id="feedback-container">
+            <div style="height: 45px; margin-top: 8px;">
                 <div id="scoreDisplay" class="score-display"></div>
                 <div id="statusMsg" class="status-msg"></div>
             </div>
         </div>
 
-        <!-- 2. 단어 연습 모드 -->
-        <div id="modeVocab" class="card hidden">
-            <div class="unit-selector">
-                <button class="unit-btn active" onclick="setVocabUnit(1)">1단원</button>
-                <button class="unit-btn" onclick="setVocabUnit(2)">2단원</button>
-                <button class="unit-btn" onclick="setVocabUnit(3)">3단원</button>
-                <button class="unit-btn" onclick="setVocabUnit(4)">4단원</button>
-            </div>
-            <div class="vocab-box" id="vocabWordDisplay">あさ</div>
-            <div class="vocab-meaning" id="vocabMeaningDisplay">아침 (1단원)</div>
-
-            <div class="canvas-container">
-                <canvas id="vocabGuideCanvas"></canvas>
-                <canvas id="vocabDrawCanvas"></canvas>
-            </div>
-
-            <div class="controls">
-                <button class="action-btn" id="vocabClearBtn" onclick="clearVocabCanvas()">지우기</button>
-                <button class="action-btn" id="vocabSubmitBtn" onclick="checkVocabScore()">채점하기</button>
-                <button class="action-btn" style="background:#ffb300; color:white;" onclick="nextVocabItem()">다음</button>
-            </div>
-
-            <div id="vocabFeedbackContainer" style="margin-top:10px; text-align:center; height:45px;">
-                <div id="vocabScoreDisplay" class="score-display"></div>
-                <div id="vocabStatusMsg" class="status-msg"></div>
-            </div>
+        <!-- STEP 3-2: 랜덤 퀴즈 페이지 -->
+        <div id="modeQuiz" class="card hidden">
+            <div style="font-size: 0.95rem; color: #6c757d; font-weight: bold;">다음 글자의 올바른 발음은?</div>
+            <div class="quiz-char-display" id="quizCharDisplay">あ</div>
+            
+            <div class="quiz-options" id="quizOptionsContainer"></div>
+            
+            <div style="margin-top: 20px; font-weight: bold; font-size: 1.1rem;" id="quizResultMsg"></div>
+            <button class="action-btn hidden" id="nextQuizBtn" style="background:var(--primary-color); color:white; margin-top: 15px; width:100%;" onclick="nextQuiz()">다음 문제</button>
         </div>
     </div>
 
     <script>
-        const VOCAB_BY_UNIT = {
-            1: [
-                { word: "あさ", meaning: "아침 (1단원)" }, { word: "つくえ", meaning: "책상 (1단원)" },
-                { word: "さくら", meaning: "벚꽃 (1단원)" }, { word: "ほんや", meaning: "서점 (1단원)" },
-                { word: "いえ", meaning: "집 (1단원)" }, { word: "すし", meaning: "초밥 (1단원)" },
-                { word: "ねこ", meaning: "고양이 (1단원)" }, { word: "いぬ", meaning: "개 (1단원)" }
-            ],
-            2: [
-                { word: "ちち", meaning: "아버지 (2단원)" }, { word: "はは", meaning: "어머니 (2단원)" },
-                { word: "あに", meaning: "형/오빠 (2단원)" }, { word: "あね", meaning: "누나/언니 (2단원)" },
-                { word: "えいが", meaning: "영화 (2단원)" }, { word: "りょこう", meaning: "여행 (2단원)" }
-            ],
-            3: [
-                { word: "うどん", meaning: "우동 (3단원)" }, { word: "カレー", meaning: "카레 (3단원)" },
-                { word: "ラーメン", meaning: "라면 (3단원)" }, { word: "そば", meaning: "메밀국수 (3단원)" },
-                { word: "みず", meaning: "물 (3단원)" }, { word: "おちゃ", meaning: "녹차 (3단원)" }
-            ],
-            4: [
-                { word: "みかん", meaning: "귤 (4단원)" }, { word: "いちご", meaning: "딸기 (4단원)" },
-                { word: "りんご", meaning: "사과 (4단원)" }, { word: "ノート", meaning: "공책 (4단원)" },
-                { word: "ペン", meaning: "펜 (4단원)" }, { word: "コップ", meaning: "컵 (4단원)" }
-            ]
-        };
-
         const HIRA_LIST = [
             "あ","い","う","え","お",
             "か","き","く","け","こ",
@@ -310,10 +295,67 @@
             "ワ","ヲ","ン"
         ];
 
+        // 로마자/한글 독음 매핑 딕셔너리
+        const KANA_SOUNDS = {
+            "あ":"아", "い":"이", "う":"우", "え":"에", "お":"오",
+            "か":"카", "き":"키", "く":"쿠", "け":"케", "こ":"코",
+            "さ":"사", "し":"시", "す":"수", "せ":"세", "そ":"소",
+            "た":"타", "ち":"치", "つ":"츠", "て":"테", "と":"토",
+            "な":"나", "に":"니", "ぬ":"누", "ね":"네", "の":"노",
+            "は":"하", "ひ":"히", "ふ":"후", "へ":"헤", "ほ":"호",
+            "ま":"마", "み":"미", "む":"무", "め":"메", "も":"모",
+            "や":"야", "ゆ":"유", "よ":"요",
+            "ら":"라", "리":"리", "る":"루", "れ":"레", "ろ":"로",
+            "わ":"와", "を":"오(wo)", "ん":"응",
+            // 가타카나
+            "ア":"아", "イ":"이", "ウ":"우", "エ":"에", "オ":"오",
+            "カ":"카", "キ":"키", "ク":"쿠", "ケ":"케", "コ":"코",
+            "サ":"사", "シ":"시", "ス":"수", "セ":"세", "ソ":"소",
+            "タ":"타", "チ":"치", "ツ":"츠", "テ":"테", "ト":"토",
+            "ナ":"나", "ニ":"니", "ヌ":"누", "ネ":"네", "ノ":"노",
+            "ハ":"하", "ヒ":"히", "フ":"후", "ヘ":"헤", "ホ":"호",
+            "マ":"마", "ミ":"미", "ム":"무", "メ":"메", "モ":"모",
+            "ヤ":"야", "ユ":"유", "ヨ":"요",
+            "ラ":"라", "リ":"리", "ル":"루", "レ":"레", "ロ":"로",
+            "ワ":"와", "ヲ":"오(wo)", "ン":"응"
+        };
+
         let currentType = 'hira';
         let currentChar = 'あ';
         let passedChars = {};
 
+        function goHome() {
+            document.getElementById('stepCharSelect').classList.remove('hidden');
+            document.getElementById('stepModeSelect').classList.add('hidden');
+            document.getElementById('modeStudy').classList.add('hidden');
+            document.getElementById('modeQuiz').classList.add('hidden');
+            document.getElementById('homeBtn').classList.add('hidden');
+        }
+
+        function selectKanaType(type) {
+            currentType = type;
+            document.getElementById('selectedTypeTitle').innerText = type === 'hira' ? '히라가나 학습' : '가타카나 학습';
+            document.getElementById('stepCharSelect').classList.add('hidden');
+            document.getElementById('stepModeSelect').classList.remove('hidden');
+            document.getElementById('homeBtn').classList.remove('hidden');
+        }
+
+        function startMode(mode) {
+            document.getElementById('stepModeSelect').classList.add('hidden');
+            if (mode === 'study') {
+                document.getElementById('modeStudy').classList.remove('hidden');
+                currentChar = currentType === 'hira' ? 'あ' : 'ア';
+                document.getElementById('currentTargetLabel').innerText = `현재 글자: ${currentChar}`;
+                renderKanaGrid();
+                clearCanvas();
+                drawKanaGuide();
+            } else if (mode === 'quiz') {
+                document.getElementById('modeQuiz').classList.remove('hidden');
+                nextQuiz();
+            }
+        }
+
+        /* 캔버스 세팅 및 쓰기 학습 로직 */
         function setupCanvasPair(drawCanvasId, guideCanvasId) {
             const drawCanvas = document.getElementById(drawCanvasId);
             const guideCanvas = document.getElementById(guideCanvasId);
@@ -407,16 +449,6 @@
             document.getElementById('statusMsg').innerText = '';
         }
 
-        function toggleCharType() {
-            currentType = currentType === 'hira' ? 'kata' : 'hira';
-            document.getElementById('charTypeTitle').innerText = currentType === 'hira' ? '히라가나 50음도' : '가타카나 50음도';
-            currentChar = currentType === 'hira' ? 'あ' : 'ア';
-            document.getElementById('currentTargetLabel').innerText = `현재 글자: ${currentChar}`;
-            renderKanaGrid();
-            clearCanvas();
-            drawKanaGuide();
-        }
-
         function checkScore() {
             const score = calculateCanvasScore(kanaEnv, currentChar);
             const scoreEl = document.getElementById('scoreDisplay');
@@ -432,7 +464,7 @@
             } else {
                 scoreEl.className = 'score-display fail';
                 statusEl.className = 'status-msg fail';
-                statusEl.innerText = '재도전 💦 (80점 이상)';
+                statusEl.innerText = '다시 써보세요 💦';
             }
         }
 
@@ -473,87 +505,66 @@
             return Math.max(0, Math.min(100, score));
         }
 
-        let currentVocabUnit = 1;
-        let currentVocabIndex = 0;
-        const vocabEnv = setupCanvasPair('vocabDrawCanvas', 'vocabGuideCanvas');
+        /* 퀴즈 모드 로직 */
+        function nextQuiz() {
+            document.getElementById('quizResultMsg').innerText = '';
+            document.getElementById('nextQuizBtn').classList.add('hidden');
+            
+            const list = currentType === 'hira' ? HIRA_LIST : KATA_LIST;
+            const targetChar = list[Math.floor(Math.random() * list.length)];
+            const correctSound = KANA_SOUNDS[targetChar];
+            
+            document.getElementById('quizCharDisplay').innerText = targetChar;
 
-        function setVocabUnit(unit) {
-            currentVocabUnit = unit;
-            currentVocabIndex = 0;
-            document.querySelectorAll('#modeVocab .unit-btn').forEach((btn, idx) => {
-                btn.className = 'unit-btn' + (idx + 1 === unit ? ' active' : '');
+            // 오답 보기 3개 랜덤 추출
+            let options = [correctSound];
+            while (options.length < 4) {
+                const randomChar = list[Math.floor(Math.random() * list.length)];
+                const sound = KANA_SOUNDS[randomChar];
+                if (!options.includes(sound)) {
+                    options.push(sound);
+                }
+            }
+            // 보기 섞기
+            options.sort(() => Math.random() - 0.5);
+
+            const container = document.getElementById('quizOptionsContainer');
+            container.innerHTML = '';
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkQuizAnswer(opt, correctSound);
+                container.appendChild(btn);
             });
-            loadVocabItem();
         }
 
-        function loadVocabItem() {
-            const item = VOCAB_BY_UNIT[currentVocabUnit][currentVocabIndex];
-            document.getElementById('vocabWordDisplay').innerText = item.word;
-            document.getElementById('vocabMeaningDisplay').innerText = item.meaning;
-            clearVocabCanvas();
-            drawVocabGuide();
-        }
+        function checkQuizAnswer(selected, correct) {
+            const resultMsg = document.getElementById('quizResultMsg');
+            const buttons = document.querySelectorAll('.quiz-option-btn');
+            
+            buttons.forEach(btn => {
+                btn.disabled = true;
+                if (btn.innerText === correct) {
+                    btn.style.background = '#e8f5e9';
+                    btn.style.borderColor = '#2e7d32';
+                    btn.style.color = '#2e7d32';
+                } else if (btn.innerText === selected && selected !== correct) {
+                    btn.style.background = '#ffebee';
+                    btn.style.borderColor = '#e53935';
+                    btn.style.color = '#e53935';
+                }
+            });
 
-        function drawVocabGuide() {
-            const item = VOCAB_BY_UNIT[currentVocabUnit][currentVocabIndex];
-            vocabEnv.guideCtx.clearRect(0, 0, vocabEnv.size, vocabEnv.size);
-            let fontSize = item.word.length > 3 ? "80px" : "110px";
-            vocabEnv.guideCtx.font = `${fontSize} 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif`;
-            vocabEnv.guideCtx.textAlign = "center";
-            vocabEnv.guideCtx.textBaseline = "middle";
-            vocabEnv.guideCtx.fillStyle = "#000";
-            vocabEnv.guideCtx.fillText(item.word, vocabEnv.size / 2, vocabEnv.size / 2 + 5);
-        }
-
-        function clearVocabCanvas() {
-            vocabEnv.drawCtx.clearRect(0, 0, vocabEnv.size, vocabEnv.size);
-            document.getElementById('vocabScoreDisplay').innerText = '';
-            document.getElementById('vocabStatusMsg').innerText = '';
-        }
-
-        function nextVocabItem() {
-            const list = VOCAB_BY_UNIT[currentVocabUnit];
-            currentVocabIndex = (currentVocabIndex + 1) % list.length;
-            loadVocabItem();
-        }
-
-        function checkVocabScore() {
-            const item = VOCAB_BY_UNIT[currentVocabUnit][currentVocabIndex];
-            const score = calculateCanvasScore(vocabEnv, item.word);
-            const scoreEl = document.getElementById('vocabScoreDisplay');
-            const statusEl = document.getElementById('vocabStatusMsg');
-
-            scoreEl.innerText = `${score}/100점`;
-            if (score >= 80) {
-                scoreEl.className = 'score-display pass';
-                statusEl.className = 'status-msg pass';
-                statusEl.innerText = '통과! 💮';
+            if (selected === correct) {
+                resultMsg.style.color = '#1976D2';
+                resultMsg.innerText = '정답입니다! 💮';
             } else {
-                scoreEl.className = 'score-display fail';
-                statusEl.className = 'status-msg fail';
-                statusEl.innerText = '다시 써보세요 💦';
+                resultMsg.style.color = '#E53935';
+                resultMsg.innerText = `틀렸습니다! 정답은 '${correct}' 입니다 💦`;
             }
+            document.getElementById('nextQuizBtn').classList.remove('hidden');
         }
-
-        function switchMode(mode) {
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('modeKana').classList.add('hidden');
-            document.getElementById('modeVocab').classList.add('hidden');
-
-            if (mode === 'kana') {
-                document.getElementById('navKana').classList.add('active');
-                document.getElementById('modeKana').classList.remove('hidden');
-            } else if (mode === 'vocab') {
-                document.getElementById('navVocab').classList.add('active');
-                document.getElementById('modeVocab').classList.remove('hidden');
-                loadVocabItem();
-            }
-        }
-
-        window.onload = () => {
-            renderKanaGrid();
-            drawKanaGuide();
-        };
     </script>
 </body>
 </html>
