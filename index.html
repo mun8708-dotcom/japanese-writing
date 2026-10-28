@@ -134,7 +134,7 @@
             top: 0;
             left: 0;
             z-index: 2;
-            opacity: 0.4; /* 획순 가이드라인 */
+            opacity: 0.4;
         }
         #drawCanvas {
             position: absolute;
@@ -212,13 +212,13 @@
     <header>
         <div class="header-title">🇯🇵 일본어 쓰기 트레이너</div>
         <div class="mode-nav">
-            <button class="nav-btn active" onclick="switchMode('kana')">50음도</button>
-            <button class="nav-btn" onclick="switchMode('vocab')">단어 연습</button>
+            <button id="navKana" class="nav-btn active" onclick="switchMode('kana')">50음도</button>
+            <button id="navVocab" class="nav-btn" onclick="switchMode('vocab')">단어 연습</button>
         </div>
     </header>
 
     <div class="main-container">
-        <!-- 1. 50음도 학습 모드 (획순/방향 가이드 포함) -->
+        <!-- 1. 50음도 학습 모드 -->
         <div id="modeKana" class="card">
             <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:15px; align-items:center;">
                 <span id="charTypeTitle" style="font-weight:bold; font-size:1.1rem;">히라가나 50음도</span>
@@ -245,7 +245,7 @@
             </div>
         </div>
 
-        <!-- 2. 단어 연습 모드 (획순 가이드 없음, 순수 글자 가이드만) -->
+        <!-- 2. 단어 연습 모드 -->
         <div id="modeVocab" class="card hidden">
             <h3>교과서 어휘 따라쓰기</h3>
             <div class="unit-selector">
@@ -297,7 +297,7 @@
             "タ","チ","ツ","テ","ト",
             "ナ","ニ","ヌ","ネ","ノ",
             "ハ","ヒ","フ","ヘ","ホ",
-            "マ","ミ","ム","메".replace("메","メ"),"モ",
+            "マ","ミ","ム","メ","モ",
             "ヤ","ユ","ヨ",
             "ラ","リ","ル","レ","ロ",
             "ワ","ヲ","ン"
@@ -307,7 +307,6 @@
         let currentChar = 'あ';
         let passedChars = {};
 
-        // 캔버스 세팅 함수 (획순 가이드 캔버스 추가 지원)
         function setupCanvasPair(drawCanvasId, guideCanvasId, strokeCanvasId = null) {
             const drawCanvas = document.getElementById(drawCanvasId);
             const guideCanvas = document.getElementById(guideCanvasId);
@@ -375,11 +374,11 @@
             return { drawCanvas, guideCanvas, strokeCanvas, drawCtx, guideCtx, strokeCtx, size, dpr };
         }
 
-        // 1. 50음도 모드 설정 (획순 방향 가이드 포함)
         const kanaEnv = setupCanvasPair('drawCanvas', 'guideCanvas', 'strokeCanvas');
         
         function renderKanaGrid() {
             const grid = document.getElementById('kanaGrid');
+            if (!grid) return;
             grid.innerHTML = '';
             const list = currentType === 'hira' ? HIRA_LIST : KATA_LIST;
             list.forEach(ch => {
@@ -397,7 +396,6 @@
         }
 
         function drawKanaGuides() {
-            // 배경 글자 가이드
             kanaEnv.guideCtx.clearRect(0, 0, kanaEnv.size, kanaEnv.size);
             kanaEnv.guideCtx.font = "220px 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
             kanaEnv.guideCtx.textAlign = "center";
@@ -405,43 +403,33 @@
             kanaEnv.guideCtx.fillStyle = "#000";
             kanaEnv.guideCtx.fillText(currentChar, kanaEnv.size / 2, kanaEnv.size / 2 + 10);
 
-            // 획순 및 방향 화살표 가이드 (가나 문자 학습에서만 제공)
             kanaEnv.strokeCtx.clearRect(0, 0, kanaEnv.size, kanaEnv.size);
             drawStrokeDirectionGuide(kanaEnv.strokeCtx, currentChar, kanaEnv.size);
         }
 
-        // 획순 및 방향 가이드 화살표/번호 그려주는 시각화 함수
         function drawStrokeDirectionGuide(ctx, char, size) {
-            ctx.strokeStyle = "#e53935"; // 붉은색 계열로 획순/방향 강조
+            ctx.strokeStyle = "#e53935";
             ctx.fillStyle = "#e53935";
             ctx.lineWidth = 3;
-            ctx.setLineDash([4, 4]); // 점선으로 획순 경로 표시
+            ctx.setLineDash([4, 4]);
 
-            // 글자별 대략적인 획순 흐름 안내선 및 방향 화살표 예시 (대표 글자들 커스텀 혹은 범용 가이드)
-            // 캔버스 중앙에 간단한 시뮬레이션 가이드 라인과 화살표 표시
             ctx.beginPath();
             if (char === 'あ') {
-                // 가로선 1획
                 ctx.moveTo(80, 100); ctx.lineTo(240, 100);
-                // 세로선 2획
                 ctx.moveTo(160, 60); ctx.lineTo(130, 240);
-                // 동그라미 3획
                 ctx.arc(180, 200, 50, Math.PI, Math.PI * 2.2);
             } else if (char === 'い') {
                 ctx.moveTo(110, 80); ctx.quadraticCurveTo(90, 160, 110, 240);
                 ctx.moveTo(220, 80); ctx.quadraticCurveTo(240, 160, 210, 240);
             } else {
-                // 일반적인 글자 중심선 흐름 화살표 대안
                 ctx.arc(size/2, size/2, 80, 0, Math.PI * 2);
             }
             ctx.stroke();
-            ctx.setLineDash([]); // 초기화
+            ctx.setLineDash([]);
 
-            // 화살표 머리(방향) 추가 렌더링
-            drawArrowHead(ctx, 220, 100, 240, 100); // 1획 방향 예시
-            drawArrowHead(ctx, 130, 200, 130, 240); // 2획 방향 예시
+            drawArrowHead(ctx, 220, 100, 240, 100);
+            drawArrowHead(ctx, 130, 200, 130, 240);
             
-            // 획순 번호 텍스트 표기
             ctx.font = "bold 16px sans-serif";
             ctx.fillText("①", 70, 90);
             ctx.fillText("②", 145, 70);
@@ -494,7 +482,6 @@
             }
         }
 
-        // 공통 채점 알고리즘 (이탈 감점)
         function calculateCanvasScore(env, targetChar) {
             const drawData = env.drawCtx.getImageData(0, 0, env.drawCanvas.width, env.drawCanvas.height).data;
             
@@ -532,8 +519,6 @@
             return Math.max(0, Math.min(100, score));
         }
 
-
-        // 2. 단어 연습 모드 (획순 가이드 없음)
         let currentVocabUnit = 1;
         let currentVocabIndex = 0;
         const vocabEnv = setupCanvasPair('vocabDrawCanvas', 'vocabGuideCanvas');
@@ -596,24 +581,21 @@
             }
         }
 
-
-        // 모드 전환 네비게이션
         function switchMode(mode) {
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('modeKana').classList.add('hidden');
             document.getElementById('modeVocab').classList.add('hidden');
 
             if (mode === 'kana') {
-                document.querySelector('button[onclick="switchMode('kana')"]').classList.add('active');
+                document.getElementById('navKana').classList.add('active');
                 document.getElementById('modeKana').classList.remove('hidden');
             } else if (mode === 'vocab') {
-                document.querySelector('button[onclick="switchMode('vocab')"]').classList.add('active');
+                document.getElementById('navVocab').classList.add('active');
                 document.getElementById('modeVocab').classList.remove('hidden');
                 loadVocabItem();
             }
         }
 
-        // 초기 실행
         window.onload = () => {
             renderKanaGrid();
             drawKanaGuides();
