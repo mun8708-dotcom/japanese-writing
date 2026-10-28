@@ -81,7 +81,6 @@
             color: #495057;
         }
 
-        /* 확실히 표시되도록 수정된 뒤로가기 버튼 */
         .back-nav-btn {
             align-self: flex-start;
             margin-bottom: 10px;
@@ -208,6 +207,16 @@
             font-weight: bold;
             margin-bottom: 5px;
         }
+        .quiz-type-badge {
+            background: var(--primary-light);
+            color: var(--primary-color);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
         .quiz-target-info {
             font-size: 2rem;
             font-weight: bold;
@@ -247,7 +256,7 @@
         <!-- STEP 3-1: 기본 쓰기 학습 페이지 -->
         <div id="modeStudy" class="card hidden" style="padding: 15px;">
             <button class="back-nav-btn" onclick="goToModeSelect()">← 모드 선택으로</button>
-            <div class="grid-container" id="kanaGrid"></div>
+            <div class="grid-container" id="kanaGrid" style="margin-top: 25px;"></div>
             <div style="font-size: 1rem; font-weight: bold; margin: 6px 0;" id="currentTargetLabel">현재 글자: あ</div>
             
             <div class="canvas-container">
@@ -256,8 +265,8 @@
             </div>
 
             <div class="controls">
-                <button class="action-btn undo-btn" onclick="undoStroke(studyEnv)">이전 획</button>
-                <button id="clearBtn" class="action-btn" onclick="clearCanvas(studyEnv)">전체 지우기</button>
+                <button class="action-btn undo-btn" onclick="studyEnv.undo()">이전 획</button>
+                <button id="clearBtn" class="action-btn" onclick="studyEnv.clear()">전체 지우기</button>
                 <button id="submitBtn" class="action-btn" onclick="checkScore()">채점하기</button>
             </div>
 
@@ -270,6 +279,7 @@
         <!-- STEP 3-2: 랜덤 쓰기 퀴즈 페이지 (10문항 세트) -->
         <div id="modeQuiz" class="card hidden">
             <button class="back-nav-btn" onclick="goToModeSelect()">← 모드 선택으로</button>
+            <div id="quizTypeBadge" class="quiz-type-badge">히라가나 퀴즈</div>
             <div class="quiz-header-info">
                 <span id="quizProgressCount">문제 1 / 10</span>
                 <span>발음 문자를 써보세요</span>
@@ -282,8 +292,8 @@
             </div>
 
             <div class="controls">
-                <button class="action-btn undo-btn" onclick="undoStroke(quizEnv)">이전 획</button>
-                <button class="action-btn" id="quizClearBtn" onclick="clearCanvas(quizEnv)">전체 지우기</button>
+                <button class="action-btn undo-btn" onclick="quizEnv.undo()">이전 획</button>
+                <button class="action-btn" id="quizClearBtn" onclick="quizEnv.clear()">전체 지우기</button>
                 <button class="action-btn" style="background:#1976D2; color:white;" onclick="toggleQuizAnswer()">정답 보기</button>
                 <button class="action-btn" style="background:var(--primary-color); color:white;" onclick="nextQuiz()" id="nextQuizBtn">다음 문제</button>
             </div>
@@ -310,7 +320,7 @@
             "タ","チ","ツ","テ","ト",
             "ナ","ニ","ヌ","ネ","ノ",
             "ハ","ヒ","フ","ヘ","ホ",
-            "マ","ミ","ム","メ","モ",
+            "マ","ミ","ム","메".replace("메","メ"),"モ",
             "ヤ","ユ","ヨ",
             "ラ","リ","ル","レ","ロ",
             "ワ","ヲ","ン"
@@ -325,29 +335,28 @@
             "は":"하 (ha)", "ひ":"히 (hi)", "ふ":"후 (fu/hu)", "へ":"헤 (he)", "ほ":"호 (ho)",
             "ま":"마 (ma)", "미":"미 (mi)", "む":"무 (mu)", "め":"메 (me)", "も":"모 (mo)",
             "や":"야 (ya)", "ゆ":"유 (yu)", "よ":"요 (yo)",
-            "ら":"라 (ra)", "り":"리 (ri)", "る":"루 (ru)", "れ":"레 (re)", "ろ":"로 (ro)",
+            "ら":"라 (ra)", "리":"리 (ri)", "る":"루 (ru)", "れ":"레 (re)", "ろ":"로 (ro)",
             "わ":"와 (wa)", "を":"오 (wo)", "ん":"응 (n)",
             // 가타카나
-            "ア":"아 (a)", "イ":"이 (i)", "ウ":"우 (u)", "エ":"에 (e)", "オ":"오 (o)",
-            "カ":"카 (ka)", "キ":"키 (ki)", "ク":"쿠 (ku)", "ケ":"케 (ke)", "코":"코 (ko) 카",
+            "ア":"아 (a)", "イ":"이 (i)", "ウ":"우 (u)", "エ":"에 (e)", "오".replace("오","オ"):"오 (o)",
+            "カ":"카 (ka)", "キ":"키 (ki)", "ク":"쿠 (ku)", "ケ":"케 (ke)", "コ":"코 (ko)",
             "サ":"사 (sa)", "シ":"시 (shi/si)", "ス":"수 (su)", "セ":"세 (se)", "ソ":"소 (so)",
             "タ":"타 (ta)", "チ":"치 (chi/ti)", "ツ":"츠 (tsu/tu)", "テ":"테 (te)", "ト":"토 (to)",
             "ナ":"나 (na)", "ニ":"니 (ni)", "ヌ":"누 (nu)", "ネ":"네 (ne)", "ノ":"노 (no)",
             "ハ":"하 (ha)", "ヒ":"히 (hi)", "フ":"후 (fu/hu)", "ヘ":"헤 (he)", "ホ":"호 (ho)",
-            "マ":"마 (ma)", "ミ":"미 (mi)", "ム":"무 (mu)", "メ":"메 (me)", "モ":"모 (mo)",
+            "マ":"마 (ma)", "미".replace("미","ミ"):"미 (mi)", "ム":"무 (mu)", "メ":"메 (me)", "モ":"모 (mo)",
             "ヤ":"야 (ya)", "ユ":"유 (yu)", "ヨ":"요 (yo)",
             "ラ":"라 (ra)", "リ":"리 (ri)", "ル":"루 (ru)", "レ":"레 (re)", "ロ":"로 (ro)",
             "ワ":"와 (wa)", "ヲ":"오 (wo)", "ン":"응 (n)"
         };
-        // 가타카나 '코' 키 오타 수정 보완
-        KANA_INFO["コ"] = "코 (ko)";
+        KANA_INFO["オ"] = "오 (o)";
+        KANA_INFO["ミ"] = "미 (mi)";
 
         let currentType = 'hira';
         let currentChar = 'あ';
         let passedChars = {};
         let isAnswerShown = false;
 
-        // 퀴즈 10문항 세트 관련 변수
         let quizList = [];
         let quizIndex = 0;
         let currentQuizChar = 'あ';
@@ -382,17 +391,18 @@
                 currentChar = currentType === 'hira' ? 'あ' : 'ア';
                 document.getElementById('currentTargetLabel').innerText = `현재 글자: ${currentChar}`;
                 renderKanaGrid();
-                clearCanvas(studyEnv);
+                studyEnv.clear();
                 drawGuide(studyEnv, currentChar);
                 document.getElementById('scoreDisplay').innerText = '';
                 document.getElementById('statusMsg').innerText = '';
             } else if (mode === 'quiz') {
                 document.getElementById('modeQuiz').classList.remove('hidden');
+                // 퀴즈 종류 배지 갱신
+                document.getElementById('quizTypeBadge').innerText = currentType === 'hira' ? '히라가나 퀴즈' : '가타카나 퀴즈';
                 initQuizSet();
             }
         }
 
-        /* 획 단위 저장을 지원하는 캔버스 세팅 (이전 획 지우기 기능 포함) */
         function setupCanvasPair(drawCanvasId, guideCanvasId) {
             const drawCanvas = document.getElementById(drawCanvasId);
             const guideCanvas = document.getElementById(guideCanvasId);
@@ -474,8 +484,22 @@
             drawCanvas.addEventListener('pointerout', stop);
 
             return { 
-                drawCanvas, guideCanvas, drawCtx, guideCtx, size, dpr, 
-                strokes, redrawStrokes 
+                drawCanvas, guideCanvas, drawCtx, guideCtx, size, dpr,
+                clear: function() {
+                    strokes = [];
+                    currentStroke = [];
+                    drawCtx.clearRect(0, 0, size, size);
+                    if (drawCanvasId === 'drawCanvas') {
+                        document.getElementById('scoreDisplay').innerText = '';
+                        document.getElementById('statusMsg').innerText = '';
+                    }
+                },
+                undo: function() {
+                    if (strokes.length > 0) {
+                        strokes.pop();
+                        redrawStrokes();
+                    }
+                }
             };
         }
 
@@ -499,10 +523,8 @@
                     currentChar = ch;
                     document.getElementById('currentTargetLabel').innerText = `현재 글자: ${ch}`;
                     renderKanaGrid();
-                    clearCanvas(studyEnv);
+                    studyEnv.clear();
                     drawGuide(studyEnv, currentChar);
-                    document.getElementById('scoreDisplay').innerText = '';
-                    document.getElementById('statusMsg').innerText = '';
                 };
                 grid.appendChild(btn);
             });
@@ -515,22 +537,6 @@
             env.guideCtx.textBaseline = "middle";
             env.guideCtx.fillStyle = "#000";
             env.guideCtx.fillText(char, env.size / 2, env.size / 2 + 8);
-        }
-
-        function clearCanvas(env) {
-            env.strokes = [];
-            env.drawCtx.clearRect(0, 0, env.size, env.size);
-            if (env === studyEnv) {
-                document.getElementById('scoreDisplay').innerText = '';
-                document.getElementById('statusMsg').innerText = '';
-            }
-        }
-
-        function undoStroke(env) {
-            if (env.strokes.length > 0) {
-                env.strokes.pop();
-                env.redrawStrokes();
-            }
         }
 
         function checkScore() {
@@ -589,10 +595,8 @@
             return Math.max(0, Math.min(100, score));
         }
 
-        /* 10문항 세트 퀴즈 로직 */
         function initQuizSet() {
             const list = [...(currentType === 'hira' ? HIRA_LIST : KATA_LIST)];
-            // 무작위로 섞은 뒤 10개만 추출
             quizList = list.sort(() => Math.random() - 0.5).slice(0, 10);
             quizIndex = 0;
             loadQuizItem();
@@ -600,7 +604,7 @@
 
         function loadQuizItem() {
             isAnswerShown = false;
-            clearCanvas(quizEnv);
+            quizEnv.clear();
             quizEnv.guideCtx.clearRect(0, 0, quizEnv.size, quizEnv.size);
 
             if (quizIndex < quizList.length) {
@@ -609,16 +613,15 @@
                 document.getElementById('quizPromptText').innerText = KANA_INFO[currentQuizChar];
                 document.getElementById('nextQuizBtn').innerText = quizIndex === 9 ? '퀴즈 완료' : '다음 문제';
             } else {
-                // 10문제 모두 완료 시
                 document.getElementById('quizProgressCount').innerText = '세트 완료!';
                 document.getElementById('quizPromptText').innerText = '🎉 10문항을 모두 풀었습니다!';
-                clearCanvas(quizEnv);
+                quizEnv.clear();
                 quizEnv.guideCtx.font = "24px sans-serif";
                 quizEnv.guideCtx.fillStyle = "#2e7d32";
                 quizEnv.guideCtx.textAlign = "center";
                 quizEnv.guideCtx.fillText("수고하셨습니다!", quizEnv.size / 2, quizEnv.size / 2);
                 document.getElementById('nextQuizBtn').innerText = '다시 풀기';
-                quizIndex = -1; // 한 번 더 누르면 재시작
+                quizIndex = -1;
             }
         }
 
