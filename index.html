@@ -179,7 +179,11 @@
         #clearBtn { background-color: #e9ecef; color: #495057; }
         #submitBtn { background-color: var(--primary-color); color: white; }
 
-        /* 퀴즈 스타일 */
+        .score-display { font-size: 1.3rem; font-weight: 800; margin-top: 4px; }
+        .status-msg { font-size: 0.9rem; font-weight: bold; }
+        .pass { color: #1976D2; }
+        .fail { color: #E53935; }
+
         .quiz-prompt {
             font-size: 1rem;
             color: #6c757d;
@@ -222,7 +226,7 @@
             <button class="action-btn" style="background:#dee2e6; color:#333; margin-top:8px; width:100%;" onclick="goHome()">문자 다시 고르기</button>
         </div>
 
-        <!-- STEP 3-1: 기본 쓰기 학습 페이지 -->
+        <!-- STEP 3-1: 기본 쓰기 학습 페이지 (채점 버튼 포함) -->
         <div id="modeStudy" class="card hidden" style="padding: 15px;">
             <div class="grid-container" id="kanaGrid"></div>
             <div style="font-size: 1rem; font-weight: bold; margin: 6px 0;" id="currentTargetLabel">현재 글자: あ</div>
@@ -234,6 +238,12 @@
 
             <div class="controls">
                 <button id="clearBtn" class="action-btn" onclick="clearCanvas(studyEnv)">지우기</button>
+                <button id="submitBtn" class="action-btn" onclick="checkScore()">채점하기</button>
+            </div>
+
+            <div style="height: 45px; margin-top: 5px;">
+                <div id="scoreDisplay" class="score-display"></div>
+                <div id="statusMsg" class="status-msg"></div>
             </div>
         </div>
 
@@ -281,18 +291,17 @@
             "ワ","ヲ","ン"
         ];
 
-        // 한글 발음 및 로마자(알파벳) 매핑 데이터
         const KANA_INFO = {
             "あ":"아 (a)", "い":"이 (i)", "う":"우 (u)", "え":"에 (e)", "お":"오 (o)",
             "か":"카 (ka)", "き":"키 (ki)", "く":"쿠 (ku)", "け":"케 (ke)", "こ":"코 (ko)",
             "さ":"사 (sa)", "し":"시 (shi/si)", "す":"수 (su)", "せ":"세 (se)", "そ":"소 (so)",
-            "た":"타 (ta)", "ち":"치 (chi/ti)", "つ":"츠 (tsu/tu)", "て":"테 (te)", "と":"토 (to)",
+            "た":"타 (ta)", "치":"치 (chi/ti)", "つ":"츠 (tsu/tu)", "て":"테 (te)", "と":"토 (to)",
             "な":"나 (na)", "に":"니 (ni)", "ぬ":"누 (nu)", "ね":"네 (ne)", "の":"노 (no)",
             "は":"하 (ha)", "ひ":"히 (hi)", "ふ":"후 (fu/hu)", "へ":"헤 (he)", "ほ":"호 (ho)",
-            "ま":"마 (ma)", "み":"미 (mi)", "む":"무 (mu)", "め":"메 (me)", "も":"모 (mo)",
+            "ま":"마 (ma)", "미":"미 (mi)", "む":"무 (mu)", "め":"메 (me)", "も":"모 (mo)",
             "や":"야 (ya)", "ゆ":"유 (yu)", "よ":"요 (yo)",
             "ら":"라 (ra)", "り":"리 (ri)", "る":"루 (ru)", "れ":"레 (re)", "ろ":"로 (ro)",
-            "わ":"와 (wa)", "を":"오 (wo)", "ん":"응 (n)",
+            "わ":"와 (wa)", "을":"오 (wo)", "ん":"응 (n)", "を":"오 (wo)",
             // 가타카나
             "ア":"아 (a)", "イ":"이 (i)", "ウ":"우 (u)", "エ":"에 (e)", "オ":"오 (o)",
             "カ":"카 (ka)", "キ":"키 (ki)", "ク":"쿠 (ku)", "ケ":"케 (ke)", "コ":"코 (ko)",
@@ -302,8 +311,8 @@
             "ハ":"하 (ha)", "ヒ":"히 (hi)", "フ":"후 (fu/hu)", "ヘ":"헤 (he)", "ホ":"호 (ho)",
             "マ":"마 (ma)", "ミ":"미 (mi)", "ム":"무 (mu)", "メ":"메 (me)", "モ":"모 (mo)",
             "ヤ":"야 (ya)", "ユ":"유 (yu)", "ヨ":"요 (yo)",
-            "ラ":"라 (ra)", "리":"리 (ri)", "ル":"루 (ru)", "レ":"레 (re)", "ロ":"로 (ro)",
-            "ワ":"와 (wa)", "ヲ":"오 (wo)", "ン":"응 (n)"
+            "라":"라 (ra)", "リ":"리 (ri)", "ル":"루 (ru)", "レ":"레 (re)", "ロ":"로 (ro)",
+            "ワ":"와 (wa)", "ヲ":"오 (wo)", "ン":"응 (n)", "ラ":"라 (ra)", "リ":"리 (ri)", "ル":"루 (ru)", "レ":"레 (re)", "ロ":"로 (ro)"
         };
 
         let currentType = 'hira';
@@ -337,13 +346,14 @@
                 renderKanaGrid();
                 clearCanvas(studyEnv);
                 drawGuide(studyEnv, currentChar);
+                document.getElementById('scoreDisplay').innerText = '';
+                document.getElementById('statusMsg').innerText = '';
             } else if (mode === 'quiz') {
                 document.getElementById('modeQuiz').classList.remove('hidden');
                 nextQuiz();
             }
         }
 
-        /* 공통 캔버스 세팅 함수 */
         function setupCanvasPair(drawCanvasId, guideCanvasId) {
             const drawCanvas = document.getElementById(drawCanvasId);
             const guideCanvas = document.getElementById(guideCanvasId);
@@ -404,7 +414,6 @@
         const studyEnv = setupCanvasPair('drawCanvas', 'guideCanvas');
         const quizEnv = setupCanvasPair('quizDrawCanvas', 'quizGuideCanvas');
 
-        /* 학습 페이지 그리드 및 선택 강조 표시 */
         function renderKanaGrid() {
             const grid = document.getElementById('kanaGrid');
             if (!grid) return;
@@ -421,9 +430,11 @@
                 btn.onclick = () => {
                     currentChar = ch;
                     document.getElementById('currentTargetLabel').innerText = `현재 글자: ${ch}`;
-                    renderKanaGrid(); // 선택 상태 실시간 반영
+                    renderKanaGrid();
                     clearCanvas(studyEnv);
                     drawGuide(studyEnv, currentChar);
+                    document.getElementById('scoreDisplay').innerText = '';
+                    document.getElementById('statusMsg').innerText = '';
                 };
                 grid.appendChild(btn);
             });
@@ -440,13 +451,72 @@
 
         function clearCanvas(env) {
             env.drawCtx.clearRect(0, 0, env.size, env.size);
+            if (env === studyEnv) {
+                document.getElementById('scoreDisplay').innerText = '';
+                document.getElementById('statusMsg').innerText = '';
+            }
         }
 
-        /* 퀴즈 모드 로직 */
+        function checkScore() {
+            const score = calculateCanvasScore(studyEnv, currentChar);
+            const scoreEl = document.getElementById('scoreDisplay');
+            const statusEl = document.getElementById('statusMsg');
+
+            scoreEl.innerText = `${score}/100점`;
+            if (score >= 80) {
+                scoreEl.className = 'score-display pass';
+                statusEl.className = 'status-msg pass';
+                statusEl.innerText = '통과 💮';
+                passedChars[currentChar] = true;
+                renderKanaGrid();
+            } else {
+                scoreEl.className = 'score-display fail';
+                statusEl.className = 'status-msg fail';
+                statusEl.innerText = '다시 써보세요 💦';
+            }
+        }
+
+        function calculateCanvasScore(env, targetChar) {
+            const drawData = env.drawCtx.getImageData(0, 0, env.drawCanvas.width, env.drawCanvas.height).data;
+            
+            const bufferCanvas = document.createElement('canvas');
+            bufferCanvas.width = env.drawCanvas.width;
+            bufferCanvas.height = env.drawCanvas.height;
+            const bCtx = bufferCanvas.getContext('2d', { willReadFrequently: true });
+            
+            bCtx.scale(env.dpr, env.dpr);
+            bCtx.font = "190px 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
+            bCtx.textAlign = "center";
+            bCtx.textBaseline = "middle";
+            bCtx.lineWidth = 14;
+            bCtx.lineJoin = 'round';
+            bCtx.strokeStyle = "black";
+            bCtx.strokeText(targetChar, env.size / 2, env.size / 2 + 8);
+            bCtx.fillStyle = "black";
+            bCtx.fillText(targetChar, env.size / 2, env.size / 2 + 8);
+            
+            const guideData = bCtx.getImageData(0, 0, env.drawCanvas.width, env.drawCanvas.height).data;
+            
+            let drawnPixels = 0;
+            let outOfBoundsPixels = 0;
+
+            for (let i = 0; i < drawData.length; i += 4) {
+                if (drawData[i + 3] > 10) {
+                    drawnPixels++;
+                    if (guideData[i + 3] < 10) outOfBoundsPixels++;
+                }
+            }
+
+            if (drawnPixels === 0) return 0;
+            const outRatio = outOfBoundsPixels / drawnPixels;
+            let score = Math.round(100 - (outRatio * 250));
+            return Math.max(0, Math.min(100, score));
+        }
+
         function nextQuiz() {
             isAnswerShown = false;
             clearCanvas(quizEnv);
-            quizEnv.guideCtx.clearRect(0, 0, quizEnv.size, quizEnv.size); // 정답 가이드 숨김
+            quizEnv.guideCtx.clearRect(0, 0, quizEnv.size, quizEnv.size);
 
             const list = currentType === 'hira' ? HIRA_LIST : KATA_LIST;
             currentQuizChar = list[Math.floor(Math.random() * list.length)];
@@ -456,10 +526,10 @@
 
         function toggleQuizAnswer() {
             if (!isAnswerShown) {
-                drawGuide(quizEnv, currentQuizChar); // 정답 글자 가이드 표시
+                drawGuide(quizEnv, currentQuizChar);
                 isAnswerShown = true;
             } else {
-                quizEnv.guideCtx.clearRect(0, 0, quizEnv.size, quizEnv.size); // 다시 숨김
+                quizEnv.guideCtx.clearRect(0, 0, quizEnv.size, quizEnv.size);
                 isAnswerShown = false;
             }
         }
