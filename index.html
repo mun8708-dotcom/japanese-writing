@@ -19,7 +19,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            touch-action: none;
+            /* touch-action: none; <- 스크롤을 막던 주범 삭제 완료! */
             min-height: 100vh;
         }
         header {
@@ -157,7 +157,7 @@
         }
         canvas {
             display: block;
-            touch-action: none;
+            touch-action: none; /* 캔버스 안에서만 스크롤 방지 */
         }
         #guideCanvas, #quizGuideCanvas {
             position: absolute;
@@ -276,7 +276,7 @@
             </div>
         </div>
 
-        <!-- STEP 3-2: 랜덤 쓰기 퀴즈 페이지 (10문항 세트) -->
+        <!-- STEP 3-2: 랜덤 쓰기 퀴즈 페이지 -->
         <div id="modeQuiz" class="card hidden">
             <button class="back-nav-btn" onclick="goToModeSelect()">← 모드 선택으로</button>
             <div id="quizTypeBadge" class="quiz-type-badge">히라가나 퀴즈</div>
@@ -398,7 +398,7 @@
             }
         }
 
-        /* 버그가 완벽히 수정된 캔버스 엔진 */
+        /* 획 배열까지 완벽히 초기화되는 캔버스 세팅 함수 */
         function setupCanvasPair(drawCanvasId, guideCanvasId) {
             const drawCanvas = document.getElementById(drawCanvasId);
             const guideCanvas = document.getElementById(guideCanvasId);
@@ -432,7 +432,7 @@
 
             function redrawStrokes() {
                 drawCtx.clearRect(0, 0, size, size);
-                drawCtx.beginPath(); // 캔버스 초기화 시 과거의 보이지 않는 선(Path)까지 완벽 차단
+                drawCtx.beginPath();
                 strokes.forEach(stroke => {
                     if (stroke.length < 2) return;
                     drawCtx.beginPath();
@@ -461,7 +461,6 @@
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
                 
-                // 불필요한 전체 재렌더링을 없애고 선을 자연스럽게 이어줌
                 drawCtx.beginPath();
                 drawCtx.moveTo(lastX, lastY);
                 drawCtx.lineTo(x, y);
@@ -477,7 +476,7 @@
                 if (isDrawing) {
                     isDrawing = false;
                     if (currentStroke.length > 1) {
-                        strokes.push([...currentStroke]); // 유효한 선만 배열에 저장
+                        strokes.push([...currentStroke]);
                     }
                     currentStroke = [];
                     drawCtx.beginPath();
@@ -489,10 +488,10 @@
             return { 
                 drawCanvas, guideCanvas, drawCtx, guideCtx, size, dpr,
                 clear: function() {
-                    strokes.length = 0; // 배열 완벽 초기화
+                    strokes.length = 0;
                     currentStroke.length = 0;
                     drawCtx.clearRect(0, 0, size, size);
-                    drawCtx.beginPath(); // 보이지 않는 잔상 선 차단
+                    drawCtx.beginPath();
                     if (drawCanvasId === 'drawCanvas') {
                         document.getElementById('scoreDisplay').innerText = '';
                         document.getElementById('statusMsg').innerText = '';
@@ -500,8 +499,8 @@
                 },
                 undo: function() {
                     if (strokes.length > 0) {
-                        strokes.pop(); // 마지막에 쓴 선 배열에서 제거
-                        redrawStrokes(); // 나머지 선들만 다시 깔끔하게 렌더링
+                        strokes.pop();
+                        redrawStrokes();
                     } else {
                         drawCtx.clearRect(0, 0, size, size);
                         drawCtx.beginPath();
@@ -530,7 +529,7 @@
                     currentChar = ch;
                     document.getElementById('currentTargetLabel').innerText = `현재 글자: ${ch}`;
                     renderKanaGrid();
-                    studyEnv.clear(); // 글자 변경 시 캔버스 및 배열 완벽 초기화
+                    studyEnv.clear();
                     drawGuide(studyEnv, currentChar);
                 };
                 grid.appendChild(btn);
