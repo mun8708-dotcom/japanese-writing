@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>고등학교 일본어 쓰기 & 학습 통합 웹앱</title>
+    <title>일본어 쓰기 트레이너</title>
     <style>
         :root {
             --primary-color: #2e7d32;
             --primary-light: #e8f5e9;
-            --accent-color: #ffb300;
-            --bg-color: #f4f7f6;
+            --bg-color: #f8f9fa;
             --text-color: #333;
         }
         body {
@@ -26,28 +25,28 @@
         header {
             width: 100%;
             background-color: #fff;
-            padding: 15px 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 12px 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
             display: flex;
             justify-content: space-between;
             align-items: center;
             box-sizing: border-box;
         }
         .header-title {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: bold;
             color: var(--primary-color);
         }
         .mode-nav {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
         .nav-btn {
-            padding: 8px 16px;
-            font-size: 0.9rem;
+            padding: 6px 14px;
+            font-size: 0.85rem;
             border: none;
-            border-radius: 20px;
-            background: #e0e0e0;
+            border-radius: 16px;
+            background: #e9ecef;
             cursor: pointer;
             font-weight: bold;
             transition: 0.2s;
@@ -59,40 +58,41 @@
 
         .main-container {
             width: 100%;
-            max-width: 600px;
+            max-width: 500px;
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
+            padding: 15px;
             box-sizing: border-box;
         }
 
         .card {
             background: white;
             width: 100%;
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border-radius: 14px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
             box-sizing: border-box;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
+        /* 50음도 미니멀 그리드 */
         .grid-container {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
+            gap: 6px;
             width: 100%;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         .char-grid-btn {
             aspect-ratio: 1;
-            font-size: 1.2rem;
-            border-radius: 10px;
-            border: 2px solid #ddd;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            border: 1px solid #ced4da;
             background: #fff;
             cursor: pointer;
             font-weight: bold;
@@ -104,15 +104,15 @@
             color: var(--primary-color);
         }
 
+        /* 깔끔해진 캔버스 영역 */
         .canvas-container {
             position: relative;
             background-color: #fff;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: inset 0 0 0 2px #e9ecef;
             border-radius: 12px;
             overflow: hidden;
-            width: 320px;
-            height: 320px;
-            border: 3px solid #eee;
+            width: 280px;
+            height: 280px;
         }
         canvas {
             display: block;
@@ -123,7 +123,7 @@
             top: 0;
             left: 0;
             z-index: 1;
-            opacity: 0.25;
+            opacity: 0.22;
         }
         #drawCanvas {
             position: absolute;
@@ -134,58 +134,57 @@
         }
 
         .controls {
-            margin-top: 20px;
+            margin-top: 15px;
             display: flex;
-            gap: 15px;
+            gap: 10px;
             width: 100%;
             justify-content: center;
         }
         button.action-btn {
-            padding: 12px 24px;
-            font-size: 1rem;
+            padding: 10px 22px;
+            font-size: 0.95rem;
             border: none;
-            border-radius: 50px;
+            border-radius: 30px;
             cursor: pointer;
             font-weight: bold;
-            transition: transform 0.1s;
         }
-        button.action-btn:active { transform: scale(0.95); }
-        #clearBtn { background-color: #e0e0e0; color: #333; }
-        #submitBtn { background-color: var(--primary-color); color: white; box-shadow: 0 4px 6px rgba(46,125,50,0.3); }
+        #clearBtn { background-color: #e9ecef; color: #495057; }
+        #submitBtn { background-color: var(--primary-color); color: white; }
 
         #feedback-container {
-            margin-top: 15px;
+            margin-top: 10px;
             text-align: center;
-            height: 55px;
+            height: 45px;
         }
-        .score-display { font-size: 1.6rem; font-weight: 800; margin-bottom: 2px; }
-        .status-msg { font-size: 1rem; font-weight: bold; }
+        .score-display { font-size: 1.4rem; font-weight: 800; }
+        .status-msg { font-size: 0.95rem; font-weight: bold; }
         .pass { color: #1976D2; }
         .fail { color: #E53935; }
 
         .vocab-box {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: bold;
             color: var(--primary-color);
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
         .vocab-meaning {
-            font-size: 1.1rem;
-            color: #666;
-            margin-bottom: 15px;
+            font-size: 1rem;
+            color: #6c757d;
+            margin-bottom: 12px;
         }
         .unit-selector {
             display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 8px;
+            margin-bottom: 12px;
         }
         .unit-btn {
-            padding: 8px 14px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid #ced4da;
             background: white;
             cursor: pointer;
             font-weight: bold;
+            font-size: 0.85rem;
         }
         .unit-btn.active {
             background: var(--primary-color);
@@ -208,13 +207,13 @@
     <div class="main-container">
         <!-- 1. 50음도 학습 모드 -->
         <div id="modeKana" class="card">
-            <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:15px; align-items:center;">
-                <span id="charTypeTitle" style="font-weight:bold; font-size:1.1rem;">히라가나 50음도</span>
+            <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:10px; align-items:center;">
+                <span id="charTypeTitle" style="font-weight:bold; font-size:1rem;">히라가나 50음도</span>
                 <button class="unit-btn" onclick="toggleCharType()">가타카나 전환</button>
             </div>
             <div class="grid-container" id="kanaGrid"></div>
             
-            <div style="font-size: 1.1rem; font-weight: bold; margin: 10px 0;" id="currentTargetLabel">현재 글자: あ</div>
+            <div style="font-size: 1rem; font-weight: bold; margin: 8px 0;" id="currentTargetLabel">현재 글자: あ</div>
             
             <div class="canvas-container">
                 <canvas id="guideCanvas"></canvas>
@@ -234,7 +233,6 @@
 
         <!-- 2. 단어 연습 모드 -->
         <div id="modeVocab" class="card hidden">
-            <h3>교과서 어휘 따라쓰기</h3>
             <div class="unit-selector">
                 <button class="unit-btn active" onclick="setVocabUnit(1)">1단원</button>
                 <button class="unit-btn" onclick="setVocabUnit(2)">2단원</button>
@@ -252,10 +250,10 @@
             <div class="controls">
                 <button class="action-btn" id="vocabClearBtn" onclick="clearVocabCanvas()">지우기</button>
                 <button class="action-btn" id="vocabSubmitBtn" onclick="checkVocabScore()">채점하기</button>
-                <button class="action-btn" style="background:#ffb300; color:white;" onclick="nextVocabItem()">다음 단어</button>
+                <button class="action-btn" style="background:#ffb300; color:white;" onclick="nextVocabItem()">다음</button>
             </div>
 
-            <div id="vocabFeedbackContainer" style="margin-top:15px; text-align:center; height:55px;">
+            <div id="vocabFeedbackContainer" style="margin-top:10px; text-align:center; height:45px;">
                 <div id="vocabScoreDisplay" class="score-display"></div>
                 <div id="vocabStatusMsg" class="status-msg"></div>
             </div>
@@ -263,70 +261,27 @@
     </div>
 
     <script>
-        const SHOP_TITLES = [
-            { id: "t_chick", name: "🐣 가나 병아리", price: 0, desc: "기본 지급 칭호" },
-            { id: "t_rice", name: "🍙 주먹밥 냠냠", price: 50, desc: "출석 2~3일차 입문" },
-            { id: "t_sushi", name: "🍣 스시 장인", price: 120, desc: "1주일 성실 학습" },
-            { id: "t_sakura", name: "🌸 사쿠라 마스터", price: 300, desc: "단원 퍼즐 마스터" },
-            { id: "t_lightning", name: "⚡ 번개 손가락", price: 600, desc: "스피드런 매니아" },
-            { id: "t_ramen", name: "🍜 라멘 감별사", price: 1000, desc: "중급 열정 학습자" },
-            { id: "t_edo", name: "🏯 에도 성주", price: 2000, desc: "1달 돌파 고급 목표" },
-            { id: "t_champ", name: "👑 가나고 챔피언", price: 4000, desc: "2달 정복 명예의 전당" }
-        ];
-
         const VOCAB_BY_UNIT = {
             1: [
-                { word: "あさ", meaning: "아침 (1단원)", audio: "あさ" },
-                { word: "つくえ", meaning: "책상 (1단원)", audio: "つくえ" },
-                { word: "さくら", meaning: "벚꽃 (1단원)", audio: "さくら" },
-                { word: "ほんや", meaning: "서점 (1단원)", audio: "ほんや" },
-                { word: "いえ", meaning: "집 (1단원)", audio: "いえ" },
-                { word: "すし", meaning: "초밥 (1단원)", audio: "すし" },
-                { word: "ねこ", meaning: "고양이 (1단원)", audio: "ねこ" },
-                { word: "いぬ", meaning: "개 (1단원)", audio: "いぬ" },
-                { word: "はな", meaning: "꽃 / 코 (1단원)", audio: "はな" },
-                { word: "やま", meaning: "산 (1단원)", audio: "やま" },
-                { word: "かわ", meaning: "강 (1단원)", audio: "かわ" },
-                { word: "そら", meaning: "하늘 (1단원)", audio: "そら" }
+                { word: "あさ", meaning: "아침 (1단원)" }, { word: "つくえ", meaning: "책상 (1단원)" },
+                { word: "さくら", meaning: "벚꽃 (1단원)" }, { word: "ほんや", meaning: "서점 (1단원)" },
+                { word: "いえ", meaning: "집 (1단원)" }, { word: "すし", meaning: "초밥 (1단원)" },
+                { word: "ねこ", meaning: "고양이 (1단원)" }, { word: "いぬ", meaning: "개 (1단원)" }
             ],
             2: [
-                { word: "ちち", meaning: "아버지 (2단원)", audio: "ちち" },
-                { word: "はは", meaning: "어머니 (2단원)", audio: "はは" },
-                { word: "あに", meaning: "형 / 오빠 (2단원)", audio: "あに" },
-                { word: "あね", meaning: "누나 / 언니 (2단원)", audio: "あね" },
-                { word: "いもうと", meaning: "여동생 (2단원)", audio: "いもうと" },
-                { word: "おとうと", meaning: "남동생 (2단원)", audio: "おとうと" },
-                { word: "えいが", meaning: "영화 (2단원)", audio: "えいが" },
-                { word: "りょこう", meaning: "여행 (2단원)", audio: "りょこう" },
-                { word: "おんがく", meaning: "음악 (2단원)", audio: "おんがく" },
-                { word: "へや", meaning: "방 (2단원)", audio: "へや" },
-                { word: "しゃしん", meaning: "사진 (2단원)", audio: "しゃしん" }
+                { word: "ちち", meaning: "아버지 (2단원)" }, { word: "はは", meaning: "어머니 (2단원)" },
+                { word: "あに", meaning: "형/오빠 (2단원)" }, { word: "あね", meaning: "누나/언니 (2단원)" },
+                { word: "えいが", meaning: "영화 (2단원)" }, { word: "りょこう", meaning: "여행 (2단원)" }
             ],
             3: [
-                { word: "うどん", meaning: "우동 (3단원)", audio: "うどん" },
-                { word: "カレー", meaning: "카레 (3단원)", audio: "カレー" },
-                { word: "ラーメン", meaning: "라면 (3단원)", audio: "ラーメン" },
-                { word: "そば", meaning: "메밀국수 (3단원)", audio: "そば" },
-                { word: "みず", meaning: "물 (3단원)", audio: "みず" },
-                { word: "おちゃ", meaning: "녹차 (3단원)", audio: "おちゃ" },
-                { word: "あつい", meaning: "뜨겁다 / 덥다 (3단원)", audio: "あつい" },
-                { word: "つめたい", meaning: "차갑다 (3단원)", audio: "つめたい" },
-                { word: "おいしい", meaning: "맛있다 (3단원)", audio: "おいしい" },
-                { word: "あまい", meaning: "달다 (3단원)", audio: "あまい" },
-                { word: "からい", meaning: "맵다 (3단원)", audio: "からい" }
+                { word: "うどん", meaning: "우동 (3단원)" }, { word: "カレー", meaning: "카레 (3단원)" },
+                { word: "ラーメン", meaning: "라면 (3단원)" }, { word: "そば", meaning: "메밀국수 (3단원)" },
+                { word: "みず", meaning: "물 (3단원)" }, { word: "おちゃ", meaning: "녹차 (3단원)" }
             ],
             4: [
-                { word: "みかん", meaning: "귤 (4단원)", audio: "みかん" },
-                { word: "いちご", meaning: "딸기 (4단원)", audio: "いちご" },
-                { word: "りんご", meaning: "사과 (4단원)", audio: "りんご" },
-                { word: "ノート", meaning: "공책 (4단원)", audio: "ノート" },
-                { word: "ペン", meaning: "펜 (4단원)", audio: "ペン" },
-                { word: "コップ", meaning: "컵 (4단원)", audio: "コップ" },
-                { word: "きれいだ", meaning: "예쁘다 / 깨끗하다 (4단원)", audio: "きれいだ" },
-                { word: "しずかだ", meaning: "조용하다 (4단원)", audio: "しずかだ" },
-                { word: "にぎやかだ", meaning: "번화하다 (4단원)", audio: "にぎやかだ" },
-                { word: "たかい", meaning: "비싸다 / 높다 (4단원)", audio: "たかい" },
-                { word: "やすい", meaning: "싸다 (4단원)", audio: "やすい" }
+                { word: "みかん", meaning: "귤 (4단원)" }, { word: "いちご", meaning: "딸기 (4단원)" },
+                { word: "りんご", meaning: "사과 (4단원)" }, { word: "ノート", meaning: "공책 (4단원)" },
+                { word: "ペン", meaning: "펜 (4단원)" }, { word: "コップ", meaning: "컵 (4단원)" }
             ]
         };
 
@@ -366,7 +321,7 @@
             const drawCtx = drawCanvas.getContext('2d', { willReadFrequently: true });
             const guideCtx = guideCanvas.getContext('2d', { willReadFrequently: true });
             
-            const size = 320;
+            const size = 280;
             let dpr = window.devicePixelRatio || 1;
             let isDrawing = false;
 
@@ -384,8 +339,8 @@
 
             drawCtx.lineCap = 'round';
             drawCtx.lineJoin = 'round';
-            drawCtx.lineWidth = 12;
-            drawCtx.strokeStyle = '#333';
+            drawCtx.lineWidth = 11;
+            drawCtx.strokeStyle = '#212529';
 
             let lastX = 0, lastY = 0;
 
@@ -404,7 +359,7 @@
                 const rect = drawCanvas.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
-                drawCtx.lineWidth = (e.pointerType === 'pen' && e.pressure) ? 12 + (e.pressure * 5) : 12;
+                drawCtx.lineWidth = (e.pointerType === 'pen' && e.pressure) ? 11 + (e.pressure * 4) : 11;
                 drawCtx.lineTo(x, y);
                 drawCtx.stroke();
             });
@@ -439,11 +394,11 @@
 
         function drawKanaGuide() {
             kanaEnv.guideCtx.clearRect(0, 0, kanaEnv.size, kanaEnv.size);
-            kanaEnv.guideCtx.font = "220px 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
+            kanaEnv.guideCtx.font = "190px 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
             kanaEnv.guideCtx.textAlign = "center";
             kanaEnv.guideCtx.textBaseline = "middle";
             kanaEnv.guideCtx.fillStyle = "#000";
-            kanaEnv.guideCtx.fillText(currentChar, kanaEnv.size / 2, kanaEnv.size / 2 + 10);
+            kanaEnv.guideCtx.fillText(currentChar, kanaEnv.size / 2, kanaEnv.size / 2 + 8);
         }
 
         function clearCanvas() {
@@ -477,7 +432,7 @@
             } else {
                 scoreEl.className = 'score-display fail';
                 statusEl.className = 'status-msg fail';
-                statusEl.innerText = '재도전 💦 (80점 이상 필요)';
+                statusEl.innerText = '재도전 💦 (80점 이상)';
             }
         }
 
@@ -490,15 +445,15 @@
             const bCtx = bufferCanvas.getContext('2d', { willReadFrequently: true });
             
             bCtx.scale(env.dpr, env.dpr);
-            bCtx.font = "220px 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
+            bCtx.font = "190px 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif";
             bCtx.textAlign = "center";
             bCtx.textBaseline = "middle";
-            bCtx.lineWidth = 16;
+            bCtx.lineWidth = 14;
             bCtx.lineJoin = 'round';
             bCtx.strokeStyle = "black";
-            bCtx.strokeText(targetChar, env.size / 2, env.size / 2 + 10);
+            bCtx.strokeText(targetChar, env.size / 2, env.size / 2 + 8);
             bCtx.fillStyle = "black";
-            bCtx.fillText(targetChar, env.size / 2, env.size / 2 + 10);
+            bCtx.fillText(targetChar, env.size / 2, env.size / 2 + 8);
             
             const guideData = bCtx.getImageData(0, 0, env.drawCanvas.width, env.drawCanvas.height).data;
             
@@ -542,7 +497,7 @@
         function drawVocabGuide() {
             const item = VOCAB_BY_UNIT[currentVocabUnit][currentVocabIndex];
             vocabEnv.guideCtx.clearRect(0, 0, vocabEnv.size, vocabEnv.size);
-            let fontSize = item.word.length > 3 ? "90px" : "130px";
+            let fontSize = item.word.length > 3 ? "80px" : "110px";
             vocabEnv.guideCtx.font = `${fontSize} 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif`;
             vocabEnv.guideCtx.textAlign = "center";
             vocabEnv.guideCtx.textBaseline = "middle";
@@ -556,9 +511,6 @@
             document.getElementById('vocabStatusMsg').innerText = '';
         }
 
-        function nextVocubItem() {
-            // 호환용
-        }
         function nextVocabItem() {
             const list = VOCAB_BY_UNIT[currentVocabUnit];
             currentVocabIndex = (currentVocabIndex + 1) % list.length;
@@ -568,18 +520,18 @@
         function checkVocabScore() {
             const item = VOCAB_BY_UNIT[currentVocabUnit][currentVocabIndex];
             const score = calculateCanvasScore(vocabEnv, item.word);
-            const scoreEl = document.getElementById('vocabScoreDesc') || document.getElementById('vocabScoreDisplay');
+            const scoreEl = document.getElementById('vocabScoreDisplay');
             const statusEl = document.getElementById('vocabStatusMsg');
 
-            document.getElementById('vocabScoreDisplay').innerText = `${score}/100점`;
+            scoreEl.innerText = `${score}/100점`;
             if (score >= 80) {
-                document.getElementById('vocabScoreDisplay').className = 'score-display pass';
+                scoreEl.className = 'score-display pass';
                 statusEl.className = 'status-msg pass';
-                statusEl.innerText = '단어 쓰기 통과! 💮';
+                statusEl.innerText = '통과! 💮';
             } else {
-                document.getElementById('vocabScoreDisplay').className = 'score-display fail';
+                scoreEl.className = 'score-display fail';
                 statusEl.className = 'status-msg fail';
-                statusEl.innerText = '조금 더 바르게 써보세요 💦';
+                statusEl.innerText = '다시 써보세요 💦';
             }
         }
 
