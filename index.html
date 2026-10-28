@@ -81,13 +81,12 @@
             color: #495057;
         }
 
-        /* 이전으로 가기 상단 버튼 */
+        /* 확실히 표시되도록 수정된 뒤로가기 버튼 */
         .back-nav-btn {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            padding: 5px 10px;
-            font-size: 0.8rem;
+            align-self: flex-start;
+            margin-bottom: 10px;
+            padding: 6px 14px;
+            font-size: 0.85rem;
             border: none;
             border-radius: 8px;
             background: #e9ecef;
@@ -184,7 +183,7 @@
             justify-content: center;
         }
         button.action-btn {
-            padding: 9px 14px;
+            padding: 9px 12px;
             font-size: 0.85rem;
             border: none;
             border-radius: 30px;
@@ -200,8 +199,11 @@
         .pass { color: #1976D2; }
         .fail { color: #E53935; }
 
-        .quiz-prompt {
-            font-size: 1rem;
+        .quiz-header-info {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            font-size: 0.95rem;
             color: #6c757d;
             font-weight: bold;
             margin-bottom: 5px;
@@ -210,7 +212,7 @@
             font-size: 2rem;
             font-weight: bold;
             color: var(--primary-color);
-            margin: 10px 0 15px 0;
+            margin: 5px 0 15px 0;
         }
 
         .hidden { display: none !important; }
@@ -234,19 +236,18 @@
 
         <!-- STEP 2: 학습/퀴즈 모드 선택 -->
         <div id="stepModeSelect" class="card hidden">
-            <button class="back-nav-btn" onclick="goHome()">← 이전</button>
-            <div class="section-title" id="selectedTypeTitle" style="margin-top: 10px;">히라가나 학습</div>
+            <button class="back-nav-btn" onclick="goHome()">← 문자 다시 고르기</button>
+            <div class="section-title" id="selectedTypeTitle" style="margin-top: 5px;">히라가나 학습</div>
             <div class="menu-btn-group" style="flex-direction: column;">
                 <button class="menu-select-btn" onclick="startMode('study')">✏️ 기본 쓰기 학습</button>
-                <button class="menu-select-btn" onclick="startMode('quiz')">🎯 랜덤 쓰기 퀴즈</button>
+                <button class="menu-select-btn" onclick="startMode('quiz')">🎯 랜덤 쓰기 퀴즈 (10문항)</button>
             </div>
-            <button class="action-btn" style="background:#dee2e6; color:#333; margin-top:8px; width:100%;" onclick="goHome()">문자 다시 고르기</button>
         </div>
 
         <!-- STEP 3-1: 기본 쓰기 학습 페이지 -->
         <div id="modeStudy" class="card hidden" style="padding: 15px;">
-            <button class="back-nav-btn" onclick="goToModeSelect()">← 이전</button>
-            <div class="grid-container" id="kanaGrid" style="margin-top: 25px;"></div>
+            <button class="back-nav-btn" onclick="goToModeSelect()">← 모드 선택으로</button>
+            <div class="grid-container" id="kanaGrid"></div>
             <div style="font-size: 1rem; font-weight: bold; margin: 6px 0;" id="currentTargetLabel">현재 글자: あ</div>
             
             <div class="canvas-container">
@@ -266,10 +267,13 @@
             </div>
         </div>
 
-        <!-- STEP 3-2: 랜덤 쓰기 퀴즈 페이지 -->
+        <!-- STEP 3-2: 랜덤 쓰기 퀴즈 페이지 (10문항 세트) -->
         <div id="modeQuiz" class="card hidden">
-            <button class="back-nav-btn" onclick="goToModeSelect()">← 이전</button>
-            <div class="quiz-prompt" style="margin-top: 25px;">다음 발음의 문자를 직접 써보세요!</div>
+            <button class="back-nav-btn" onclick="goToModeSelect()">← 모드 선택으로</button>
+            <div class="quiz-header-info">
+                <span id="quizProgressCount">문제 1 / 10</span>
+                <span>발음 문자를 써보세요</span>
+            </div>
             <div class="quiz-target-info" id="quizPromptText">아 (a)</div>
             
             <div class="canvas-container">
@@ -281,7 +285,7 @@
                 <button class="action-btn undo-btn" onclick="undoStroke(quizEnv)">이전 획</button>
                 <button class="action-btn" id="quizClearBtn" onclick="clearCanvas(quizEnv)">전체 지우기</button>
                 <button class="action-btn" style="background:#1976D2; color:white;" onclick="toggleQuizAnswer()">정답 보기</button>
-                <button class="action-btn" style="background:var(--primary-color); color:white;" onclick="nextQuiz()">다음 문제</button>
+                <button class="action-btn" style="background:var(--primary-color); color:white;" onclick="nextQuiz()" id="nextQuizBtn">다음 문제</button>
             </div>
         </div>
     </div>
@@ -306,7 +310,7 @@
             "タ","チ","ツ","テ","ト",
             "ナ","ニ","ヌ","ネ","ノ",
             "ハ","ヒ","フ","ヘ","ホ",
-            "マ","ミ","ム","메".replace("메","メ"),"モ",
+            "マ","ミ","ム","メ","モ",
             "ヤ","ユ","ヨ",
             "ラ","リ","ル","レ","ロ",
             "ワ","ヲ","ン"
@@ -325,7 +329,7 @@
             "わ":"와 (wa)", "を":"오 (wo)", "ん":"응 (n)",
             // 가타카나
             "ア":"아 (a)", "イ":"이 (i)", "ウ":"우 (u)", "エ":"에 (e)", "オ":"오 (o)",
-            "カ":"카 (ka)", "キ":"키 (ki)", "ク":"쿠 (ku)", "ケ":"케 (ke)", "コ":"코 (ko)",
+            "カ":"카 (ka)", "キ":"키 (ki)", "ク":"쿠 (ku)", "ケ":"케 (ke)", "코":"코 (ko) 카",
             "サ":"사 (sa)", "シ":"시 (shi/si)", "ス":"수 (su)", "セ":"세 (se)", "ソ":"소 (so)",
             "タ":"타 (ta)", "チ":"치 (chi/ti)", "ツ":"츠 (tsu/tu)", "テ":"테 (te)", "ト":"토 (to)",
             "ナ":"나 (na)", "ニ":"니 (ni)", "ヌ":"누 (nu)", "ネ":"네 (ne)", "ノ":"노 (no)",
@@ -335,12 +339,18 @@
             "ラ":"라 (ra)", "リ":"리 (ri)", "ル":"루 (ru)", "レ":"레 (re)", "ロ":"로 (ro)",
             "ワ":"와 (wa)", "ヲ":"오 (wo)", "ン":"응 (n)"
         };
+        // 가타카나 '코' 키 오타 수정 보완
+        KANA_INFO["コ"] = "코 (ko)";
 
         let currentType = 'hira';
         let currentChar = 'あ';
-        let currentQuizChar = 'あ';
         let passedChars = {};
         let isAnswerShown = false;
+
+        // 퀴즈 10문항 세트 관련 변수
+        let quizList = [];
+        let quizIndex = 0;
+        let currentQuizChar = 'あ';
 
         function goHome() {
             document.getElementById('stepCharSelect').classList.remove('hidden');
@@ -378,11 +388,11 @@
                 document.getElementById('statusMsg').innerText = '';
             } else if (mode === 'quiz') {
                 document.getElementById('modeQuiz').classList.remove('hidden');
-                nextQuiz();
+                initQuizSet();
             }
         }
 
-        /* 획 단위 저장을 지원하는 캔버스 세팅 */
+        /* 획 단위 저장을 지원하는 캔버스 세팅 (이전 획 지우기 기능 포함) */
         function setupCanvasPair(drawCanvasId, guideCanvasId) {
             const drawCanvas = document.getElementById(drawCanvasId);
             const guideCanvas = document.getElementById(guideCanvasId);
@@ -393,7 +403,7 @@
             const size = 280;
             let dpr = window.devicePixelRatio || 1;
             let isDrawing = false;
-            let strokes = []; // 그려진 획들을 저장하는 배열
+            let strokes = [];
             let currentStroke = [];
 
             drawCanvas.width = size * dpr;
@@ -442,7 +452,6 @@
                 const y = e.clientY - rect.top;
                 currentStroke.push({x, y});
                 
-                // 실시간 그리기
                 redrawStrokes();
                 drawCtx.beginPath();
                 drawCtx.moveTo(currentStroke[0].x, currentStroke[0].y);
@@ -519,8 +528,8 @@
 
         function undoStroke(env) {
             if (env.strokes.length > 0) {
-                env.strokes.pop(); // 마지막 획 제거
-                env.redrawStrokes(); // 남은 획들만 다시 그림
+                env.strokes.pop();
+                env.redrawStrokes();
             }
         }
 
@@ -580,18 +589,50 @@
             return Math.max(0, Math.min(100, score));
         }
 
-        function nextQuiz() {
+        /* 10문항 세트 퀴즈 로직 */
+        function initQuizSet() {
+            const list = [...(currentType === 'hira' ? HIRA_LIST : KATA_LIST)];
+            // 무작위로 섞은 뒤 10개만 추출
+            quizList = list.sort(() => Math.random() - 0.5).slice(0, 10);
+            quizIndex = 0;
+            loadQuizItem();
+        }
+
+        function loadQuizItem() {
             isAnswerShown = false;
             clearCanvas(quizEnv);
             quizEnv.guideCtx.clearRect(0, 0, quizEnv.size, quizEnv.size);
 
-            const list = currentType === 'hira' ? HIRA_LIST : KATA_LIST;
-            currentQuizChar = list[Math.floor(Math.random() * list.length)];
-            
-            document.getElementById('quizPromptText').innerText = KANA_INFO[currentQuizChar];
+            if (quizIndex < quizList.length) {
+                currentQuizChar = quizList[quizIndex];
+                document.getElementById('quizProgressCount').innerText = `문제 ${quizIndex + 1} / 10`;
+                document.getElementById('quizPromptText').innerText = KANA_INFO[currentQuizChar];
+                document.getElementById('nextQuizBtn').innerText = quizIndex === 9 ? '퀴즈 완료' : '다음 문제';
+            } else {
+                // 10문제 모두 완료 시
+                document.getElementById('quizProgressCount').innerText = '세트 완료!';
+                document.getElementById('quizPromptText').innerText = '🎉 10문항을 모두 풀었습니다!';
+                clearCanvas(quizEnv);
+                quizEnv.guideCtx.font = "24px sans-serif";
+                quizEnv.guideCtx.fillStyle = "#2e7d32";
+                quizEnv.guideCtx.textAlign = "center";
+                quizEnv.guideCtx.fillText("수고하셨습니다!", quizEnv.size / 2, quizEnv.size / 2);
+                document.getElementById('nextQuizBtn').innerText = '다시 풀기';
+                quizIndex = -1; // 한 번 더 누르면 재시작
+            }
+        }
+
+        function nextQuiz() {
+            if (quizIndex === -1) {
+                initQuizSet();
+                return;
+            }
+            quizIndex++;
+            loadQuizItem();
         }
 
         function toggleQuizAnswer() {
+            if (quizIndex === -1) return;
             if (!isAnswerShown) {
                 drawGuide(quizEnv, currentQuizChar);
                 isAnswerShown = true;
