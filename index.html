@@ -320,7 +320,7 @@
             "タ","チ","ツ","テ","ト",
             "ナ","ニ","ヌ","ネ","ノ",
             "ハ","ヒ","フ","ヘ","ホ",
-            "マ","ミ","ム","메".replace("메","メ"),"モ",
+            "マ","ミ","ム","メ","モ",
             "ヤ","ユ","ヨ",
             "ラ","リ","ル","レ","ロ",
             "ワ","ヲ","ン"
@@ -330,27 +330,25 @@
             "あ":"아 (a)", "い":"이 (i)", "う":"우 (u)", "え":"에 (e)", "お":"오 (o)",
             "か":"카 (ka)", "き":"키 (ki)", "く":"쿠 (ku)", "け":"케 (ke)", "こ":"코 (ko)",
             "さ":"사 (sa)", "し":"시 (shi/si)", "す":"수 (su)", "せ":"세 (se)", "そ":"소 (so)",
-            "た":"타 (ta)", "치":"치 (chi/ti)", "つ":"츠 (tsu/tu)", "て":"테 (te)", "と":"토 (to)",
+            "た":"타 (ta)", "ち":"치 (chi/ti)", "つ":"츠 (tsu/tu)", "て":"테 (te)", "と":"토 (to)",
             "な":"나 (na)", "に":"니 (ni)", "ぬ":"누 (nu)", "ね":"네 (ne)", "の":"노 (no)",
             "は":"하 (ha)", "ひ":"히 (hi)", "ふ":"후 (fu/hu)", "へ":"헤 (he)", "ほ":"호 (ho)",
-            "ま":"마 (ma)", "미":"미 (mi)", "む":"무 (mu)", "め":"메 (me)", "も":"모 (mo)",
+            "ま":"마 (ma)", "み":"미 (mi)", "む":"무 (mu)", "め":"메 (me)", "も":"모 (mo)",
             "や":"야 (ya)", "ゆ":"유 (yu)", "よ":"요 (yo)",
-            "ら":"라 (ra)", "리":"리 (ri)", "る":"루 (ru)", "れ":"레 (re)", "ろ":"로 (ro)",
+            "ら":"라 (ra)", "り":"리 (ri)", "る":"루 (ru)", "れ":"레 (re)", "ろ":"로 (ro)",
             "わ":"와 (wa)", "を":"오 (wo)", "ん":"응 (n)",
             // 가타카나
-            "ア":"아 (a)", "イ":"이 (i)", "ウ":"우 (u)", "エ":"에 (e)", "오".replace("오","オ"):"오 (o)",
+            "ア":"아 (a)", "イ":"이 (i)", "ウ":"우 (u)", "エ":"에 (e)", "オ":"오 (o)",
             "カ":"카 (ka)", "キ":"키 (ki)", "ク":"쿠 (ku)", "ケ":"케 (ke)", "コ":"코 (ko)",
             "サ":"사 (sa)", "シ":"시 (shi/si)", "ス":"수 (su)", "セ":"세 (se)", "ソ":"소 (so)",
             "タ":"타 (ta)", "チ":"치 (chi/ti)", "ツ":"츠 (tsu/tu)", "テ":"테 (te)", "ト":"토 (to)",
             "ナ":"나 (na)", "ニ":"니 (ni)", "ヌ":"누 (nu)", "ネ":"네 (ne)", "ノ":"노 (no)",
             "ハ":"하 (ha)", "ヒ":"히 (hi)", "フ":"후 (fu/hu)", "ヘ":"헤 (he)", "ホ":"호 (ho)",
-            "マ":"마 (ma)", "미".replace("미","ミ"):"미 (mi)", "ム":"무 (mu)", "メ":"메 (me)", "モ":"모 (mo)",
+            "マ":"마 (ma)", "ミ":"미 (mi)", "ム":"무 (mu)", "メ":"메 (me)", "モ":"모 (mo)",
             "ヤ":"야 (ya)", "ユ":"유 (yu)", "ヨ":"요 (yo)",
             "ラ":"라 (ra)", "リ":"리 (ri)", "ル":"루 (ru)", "レ":"레 (re)", "ロ":"로 (ro)",
             "ワ":"와 (wa)", "ヲ":"오 (wo)", "ン":"응 (n)"
         };
-        KANA_INFO["オ"] = "오 (o)";
-        KANA_INFO["ミ"] = "미 (mi)";
 
         let currentType = 'hira';
         let currentChar = 'あ';
@@ -393,16 +391,14 @@
                 renderKanaGrid();
                 studyEnv.clear();
                 drawGuide(studyEnv, currentChar);
-                document.getElementById('scoreDisplay').innerText = '';
-                document.getElementById('statusMsg').innerText = '';
             } else if (mode === 'quiz') {
                 document.getElementById('modeQuiz').classList.remove('hidden');
-                // 퀴즈 종류 배지 갱신
                 document.getElementById('quizTypeBadge').innerText = currentType === 'hira' ? '히라가나 퀴즈' : '가타카나 퀴즈';
                 initQuizSet();
             }
         }
 
+        /* 버그가 완벽히 수정된 캔버스 엔진 */
         function setupCanvasPair(drawCanvasId, guideCanvasId) {
             const drawCanvas = document.getElementById(drawCanvasId);
             const guideCanvas = document.getElementById(guideCanvasId);
@@ -415,6 +411,7 @@
             let isDrawing = false;
             let strokes = [];
             let currentStroke = [];
+            let lastX = 0, lastY = 0;
 
             drawCanvas.width = size * dpr;
             drawCanvas.height = size * dpr;
@@ -435,13 +432,15 @@
 
             function redrawStrokes() {
                 drawCtx.clearRect(0, 0, size, size);
+                drawCtx.beginPath(); // 캔버스 초기화 시 과거의 보이지 않는 선(Path)까지 완벽 차단
                 strokes.forEach(stroke => {
-                    if (stroke.length === 0) return;
+                    if (stroke.length < 2) return;
                     drawCtx.beginPath();
                     drawCtx.moveTo(stroke[0].x, stroke[0].y);
                     for (let i = 1; i < stroke.length; i++) {
                         drawCtx.lineTo(stroke[i].x, stroke[i].y);
                     }
+                    drawCtx.lineWidth = 11;
                     drawCtx.stroke();
                 });
             }
@@ -449,9 +448,10 @@
             drawCanvas.addEventListener('pointerdown', (e) => {
                 isDrawing = true;
                 const rect = drawCanvas.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                currentStroke = [{x, y}];
+                lastX = e.clientX - rect.left;
+                lastY = e.clientY - rect.top;
+                currentStroke = [{x: lastX, y: lastY}];
+                drawCtx.beginPath();
             });
 
             drawCanvas.addEventListener('pointermove', (e) => {
@@ -460,24 +460,27 @@
                 const rect = drawCanvas.getBoundingClientRect();
                 const x = e.clientX - rect.left;
                 const y = e.clientY - rect.top;
-                currentStroke.push({x, y});
                 
-                redrawStrokes();
+                // 불필요한 전체 재렌더링을 없애고 선을 자연스럽게 이어줌
                 drawCtx.beginPath();
-                drawCtx.moveTo(currentStroke[0].x, currentStroke[0].y);
-                for (let i = 1; i < currentStroke.length; i++) {
-                    drawCtx.lineTo(currentStroke[i].x, currentStroke[i].y);
-                }
+                drawCtx.moveTo(lastX, lastY);
+                drawCtx.lineTo(x, y);
+                drawCtx.lineWidth = (e.pointerType === 'pen' && e.pressure) ? 11 + (e.pressure * 4) : 11;
                 drawCtx.stroke();
+                
+                lastX = x;
+                lastY = y;
+                currentStroke.push({x, y});
             });
 
             const stop = () => {
                 if (isDrawing) {
                     isDrawing = false;
-                    if (currentStroke.length > 0) {
-                        strokes.push([...currentStroke]);
+                    if (currentStroke.length > 1) {
+                        strokes.push([...currentStroke]); // 유효한 선만 배열에 저장
                     }
                     currentStroke = [];
+                    drawCtx.beginPath();
                 }
             };
             drawCanvas.addEventListener('pointerup', stop);
@@ -486,9 +489,10 @@
             return { 
                 drawCanvas, guideCanvas, drawCtx, guideCtx, size, dpr,
                 clear: function() {
-                    strokes = [];
-                    currentStroke = [];
+                    strokes.length = 0; // 배열 완벽 초기화
+                    currentStroke.length = 0;
                     drawCtx.clearRect(0, 0, size, size);
+                    drawCtx.beginPath(); // 보이지 않는 잔상 선 차단
                     if (drawCanvasId === 'drawCanvas') {
                         document.getElementById('scoreDisplay').innerText = '';
                         document.getElementById('statusMsg').innerText = '';
@@ -496,8 +500,11 @@
                 },
                 undo: function() {
                     if (strokes.length > 0) {
-                        strokes.pop();
-                        redrawStrokes();
+                        strokes.pop(); // 마지막에 쓴 선 배열에서 제거
+                        redrawStrokes(); // 나머지 선들만 다시 깔끔하게 렌더링
+                    } else {
+                        drawCtx.clearRect(0, 0, size, size);
+                        drawCtx.beginPath();
                     }
                 }
             };
@@ -523,7 +530,7 @@
                     currentChar = ch;
                     document.getElementById('currentTargetLabel').innerText = `현재 글자: ${ch}`;
                     renderKanaGrid();
-                    studyEnv.clear();
+                    studyEnv.clear(); // 글자 변경 시 캔버스 및 배열 완벽 초기화
                     drawGuide(studyEnv, currentChar);
                 };
                 grid.appendChild(btn);
