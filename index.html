@@ -253,6 +253,7 @@
             display: flex;
             justify-content: space-between;
             width: 100%;
+            align-items: center;
             font-size: 0.95rem;
             color: #6c757d;
             font-weight: 800;
@@ -276,6 +277,26 @@
             color: var(--primary-color);
             margin: 5px 0 15px 0;
             text-shadow: 1px 1px 0px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .audio-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .audio-btn:hover {
+            background: var(--primary-light);
         }
 
         .hidden { display: none !important; }
@@ -324,8 +345,9 @@
             <button class="back-nav-btn" onclick="goToModeSelect()">← 모드 선택으로</button>
             <div class="grid-container" id="kanaGrid" style="margin-top: 10px;"></div>
             
-            <div style="background:var(--primary-light); color:var(--primary-color); padding:8px 16px; border-radius:20px; font-weight:800; font-size:1.1rem; margin:10px 0;" id="currentTargetLabel">
-                현재 글자: あ [ 아 (a) ]
+            <div style="background:var(--primary-light); color:var(--primary-color); padding:8px 16px; border-radius:20px; font-weight:800; font-size:1.1rem; margin:10px 0; display:flex; align-items:center; gap:8px;" id="currentTargetLabel">
+                현재 글자: あ [ 아 (a) ] 
+                <button class="audio-btn" onclick="playAudio(currentChar)" title="발음 듣기">🔊</button>
             </div>
             
             <div class="canvas-container">
@@ -353,7 +375,10 @@
                 <span id="quizProgressCount">문제 1 / 10</span>
                 <span>발음 문자를 써보세요</span>
             </div>
-            <div class="quiz-target-info" id="quizPromptText">아 (a)</div>
+            <div class="quiz-target-info">
+                <span id="quizPromptText">아 (a)</span>
+                <button class="audio-btn" onclick="playAudio(currentQuizChar)" title="발음 듣기">🔊</button>
+            </div>
             
             <div class="canvas-container">
                 <canvas id="quizGuideCanvas"></canvas>
@@ -465,7 +490,7 @@
             if (mode === 'study') {
                 document.getElementById('modeStudy').classList.remove('hidden');
                 currentChar = currentType === 'hira' ? 'あ' : 'ア';
-                document.getElementById('currentTargetLabel').innerText = `현재 글자: ${currentChar} [ ${KANA_INFO[currentChar]} ]`;
+                document.getElementById('currentTargetLabel').innerHTML = `현재 글자: ${currentChar} [ ${KANA_INFO[currentChar]} ] <button class="audio-btn" onclick="playAudio('${currentChar}')" title="발음 듣기">🔊</button>`;
                 renderKanaGrid();
                 studyEnv.clear();
                 drawGuide(studyEnv, currentChar);
@@ -607,7 +632,7 @@
                 
                 btn.onclick = () => {
                     currentChar = ch;
-                    document.getElementById('currentTargetLabel').innerText = `현재 글자: ${ch} [ ${KANA_INFO[ch]} ]`;
+                    document.getElementById('currentTargetLabel').innerHTML = `현재 글자: ${ch} [ ${KANA_INFO[ch]} ] <button class="audio-btn" onclick="playAudio('${ch}')" title="발음 듣기">🔊</button>`;
                     playAudio(ch);
                     renderKanaGrid();
                     studyEnv.clear();
@@ -699,9 +724,17 @@
                 document.getElementById('quizProgressCount').innerText = `문제 ${quizIndex + 1} / 10`;
                 document.getElementById('quizPromptText').innerText = KANA_INFO[currentQuizChar];
                 document.getElementById('nextQuizBtn').innerText = quizIndex === 9 ? '완료 🎉' : '다음 ▶';
+                
+                // 퀴즈 문제 로드 시 자동으로 발음 재생
+                playAudio(currentQuizChar);
             } else {
                 document.getElementById('quizProgressCount').innerText = '세트 완료!';
                 document.getElementById('quizPromptText').innerText = '🎉 참 잘했어요!';
+                
+                // 스피커 아이콘 숨기기
+                const audioBtn = document.querySelector('.quiz-target-info .audio-btn');
+                if(audioBtn) audioBtn.style.display = 'none';
+
                 quizEnv.clear();
                 quizEnv.guideCtx.font = "24px sans-serif";
                 quizEnv.guideCtx.fillStyle = "#388e3c";
@@ -714,6 +747,10 @@
 
         function nextQuiz() {
             if (quizIndex === -1) {
+                // 다시 시작할 때 스피커 아이콘 다시 보이기
+                const audioBtn = document.querySelector('.quiz-target-info .audio-btn');
+                if(audioBtn) audioBtn.style.display = 'flex';
+                
                 initQuizSet();
                 return;
             }
