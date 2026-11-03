@@ -24,6 +24,8 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            /* 패드/모바일에서 아래로 스와이프할 때 새로고침 방지 */
+            overscroll-behavior-y: none; 
         }
         header {
             width: 100%;
@@ -64,9 +66,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 30px 15px; /* 상단 여백을 주어 자연스럽게 위치 조정 (center 정렬 제거) */
+            padding: 30px 15px; 
             box-sizing: border-box;
-            justify-content: flex-start; /* 모바일에서 너무 내려가지 않도록 수정 */
+            justify-content: flex-start; 
         }
 
         .card {
@@ -74,8 +76,8 @@
             width: 100%;
             border-radius: 20px;
             padding: 25px 20px;
-            box-shadow: 0 8px 24px rgba(255, 183, 197, 0.2); /* 핑크빛 그림자 */
-            border-top: 6px solid var(--accent-color); /* 벚꽃색 포인트 라인 */
+            box-shadow: 0 8px 24px rgba(255, 183, 197, 0.2); 
+            border-top: 6px solid var(--accent-color); 
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -494,7 +496,6 @@
                 renderKanaGrid();
                 studyEnv.clear();
                 drawGuide(studyEnv, currentChar);
-                playAudio(currentChar); 
             } else if (mode === 'quiz') {
                 document.getElementById('modeQuiz').classList.remove('hidden');
                 document.getElementById('quizTypeBadge').innerText = currentType === 'hira' ? '히라가나 퀴즈' : '가타카나 퀴즈';
@@ -547,6 +548,11 @@
                     drawCtx.stroke();
                 });
             }
+
+            // 모바일/패드에서 캔버스 터치 시 스크롤 및 당겨서 새로고침 방지 (Passive: false 적용)
+            drawCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); }, { passive: false });
+            drawCanvas.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive: false });
+            drawCanvas.addEventListener('touchend', (e) => { e.preventDefault(); }, { passive: false });
 
             drawCanvas.addEventListener('pointerdown', (e) => {
                 isDrawing = true;
