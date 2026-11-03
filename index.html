@@ -6,14 +6,18 @@
     <title>일본어 쓰기 & 퀴즈 트레이너</title>
     <style>
         :root {
-            --primary-color: #2e7d32;
-            --primary-light: #e8f5e9;
-            --bg-color: #f8f9fa;
-            --text-color: #333;
+            /* 말차(녹차)와 사쿠라(벚꽃) 테마 색상 */
+            --primary-color: #388e3c; /* 좀 더 화사한 녹차색 */
+            --primary-light: #f1f8e9;
+            --accent-color: #ffb7c5; /* 벚꽃 핑크 */
+            --accent-light: #fff0f3;
+            --bg-color: #fffaf0; /* 따뜻한 종이 느낌 */
+            --text-color: #3e3e3e;
         }
         body {
             font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-            background-color: var(--bg-color);
+            /* 배경에 아주 연한 벚꽃 핑크 그라데이션 적용 */
+            background: linear-gradient(180deg, #fffaf0 0%, #fff0f3 100%);
             color: var(--text-color);
             margin: 0;
             display: flex;
@@ -23,29 +27,35 @@
         }
         header {
             width: 100%;
-            background-color: #fff;
-            padding: 12px 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            background-color: var(--primary-color);
+            padding: 14px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
             box-sizing: border-box;
+            color: white;
         }
         .header-title {
-            font-size: 1.1rem;
-            font-weight: bold;
-            color: var(--primary-color);
+            font-size: 1.15rem;
+            font-weight: 800;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         .home-btn {
-            padding: 5px 12px;
+            padding: 6px 14px;
             font-size: 0.8rem;
             border: none;
-            border-radius: 12px;
-            background: #e9ecef;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.25);
+            color: white;
             cursor: pointer;
             font-weight: bold;
+            transition: background 0.2s;
         }
+        .home-btn:hover { background: rgba(255,255,255,0.4); }
 
         .main-container {
             width: 100%;
@@ -54,17 +64,18 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 15px;
+            padding: 30px 15px; /* 상단 여백을 주어 자연스럽게 위치 조정 (center 정렬 제거) */
             box-sizing: border-box;
-            justify-content: center;
+            justify-content: flex-start; /* 모바일에서 너무 내려가지 않도록 수정 */
         }
 
         .card {
             background: white;
             width: 100%;
-            border-radius: 16px;
-            padding: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border-radius: 20px;
+            padding: 25px 20px;
+            box-shadow: 0 8px 24px rgba(255, 183, 197, 0.2); /* 핑크빛 그림자 */
+            border-top: 6px solid var(--accent-color); /* 벚꽃색 포인트 라인 */
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -73,47 +84,77 @@
             position: relative;
         }
 
+        .hero-emoji {
+            font-size: 3rem;
+            margin-bottom: 5px;
+            animation: bounce 2s infinite ease-in-out;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
         .section-title {
-            font-size: 1.2rem;
-            font-weight: bold;
+            font-size: 1.3rem;
+            font-weight: 900;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        .section-desc {
+            font-size: 0.9rem;
+            color: #7f8c8d;
             margin-bottom: 20px;
-            color: #495057;
+            font-weight: 500;
         }
 
         .back-nav-btn {
             align-self: flex-start;
-            margin-bottom: 10px;
-            padding: 6px 14px;
+            margin-bottom: 15px;
+            padding: 8px 16px;
             font-size: 0.85rem;
             border: none;
-            border-radius: 8px;
-            background: #e9ecef;
+            border-radius: 12px;
+            background: #f1f3f5;
             cursor: pointer;
             font-weight: bold;
             color: #495057;
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
 
         .menu-btn-group {
             display: flex;
             gap: 12px;
             width: 100%;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
         .menu-select-btn {
             flex: 1;
-            padding: 20px 10px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border: 2px solid #dee2e6;
-            border-radius: 12px;
+            padding: 22px 10px;
+            font-size: 1.15rem;
+            font-weight: 800;
+            border: 2px solid var(--accent-light);
+            border-radius: 16px;
             background: #fff;
+            color: #495057;
             cursor: pointer;
-            transition: 0.2s;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
         }
-        .menu-select-btn:hover {
-            border-color: var(--primary-color);
-            background: var(--primary-light);
-            color: var(--primary-color);
+        .menu-select-btn:hover, .menu-select-btn:active {
+            border-color: var(--accent-color);
+            background: var(--accent-light);
+            color: #d81b60;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(255, 183, 197, 0.3);
+        }
+        .menu-desc {
+            font-size: 0.85rem; 
+            color: #888; 
+            font-weight: 600;
+            display: block;
+            margin-top: 6px;
         }
 
         .grid-container {
@@ -126,39 +167,41 @@
         .char-grid-btn {
             aspect-ratio: 1;
             font-size: 1.1rem;
-            border-radius: 8px;
-            border: 1px solid #ced4da;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
             background: #fff;
             cursor: pointer;
             font-weight: bold;
-            transition: 0.1s;
+            transition: 0.15s;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             padding: 4px;
             box-sizing: border-box;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
         .char-grid-btn.selected {
-            border: 2px solid #1976D2;
-            background: #e3f2fd;
-            color: #1565C0;
+            border: 2px solid var(--primary-color);
+            background: var(--primary-light);
+            color: var(--primary-color);
+            transform: scale(1.05);
         }
         .char-grid-btn.passed {
-            background: var(--primary-light);
-            border-color: var(--primary-color);
-            color: var(--primary-color);
+            background: var(--accent-light);
+            border-color: var(--accent-color);
+            color: #d81b60;
         }
 
         .canvas-container {
             position: relative;
             background-color: #fff;
             box-shadow: inset 0 0 0 2px #e9ecef;
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
             width: 280px;
             height: 280px;
-            margin: 8px 0;
+            margin: 12px 0;
         }
         canvas {
             display: block;
@@ -169,7 +212,7 @@
             top: 0;
             left: 0;
             z-index: 1;
-            opacity: 0.22;
+            opacity: 0.18;
         }
         #drawCanvas, #quizDrawCanvas {
             position: absolute;
@@ -180,27 +223,30 @@
         }
 
         .controls {
-            margin-top: 12px;
+            margin-top: 15px;
             display: flex;
-            gap: 6px;
+            gap: 8px;
             width: 100%;
             justify-content: center;
         }
         button.action-btn {
-            padding: 9px 12px;
-            font-size: 0.85rem;
+            padding: 12px 16px;
+            font-size: 0.9rem;
             border: none;
             border-radius: 30px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 800;
+            transition: 0.2s;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.08);
         }
-        .undo-btn { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+        button.action-btn:active { transform: scale(0.95); }
+        .undo-btn { background-color: #fff3cd; color: #856404; }
         #clearBtn { background-color: #e9ecef; color: #495057; }
         #submitBtn { background-color: var(--primary-color); color: white; }
 
-        .score-display { font-size: 1.3rem; font-weight: 800; margin-top: 4px; }
-        .status-msg { font-size: 0.9rem; font-weight: bold; }
-        .pass { color: #1976D2; }
+        .score-display { font-size: 1.4rem; font-weight: 900; margin-top: 8px; }
+        .status-msg { font-size: 0.95rem; font-weight: bold; margin-top: 4px; }
+        .pass { color: var(--primary-color); }
         .fail { color: #E53935; }
 
         .quiz-header-info {
@@ -209,24 +255,27 @@
             width: 100%;
             font-size: 0.95rem;
             color: #6c757d;
-            font-weight: bold;
+            font-weight: 800;
             margin-bottom: 5px;
+            padding: 0 10px;
+            box-sizing: border-box;
         }
         .quiz-type-badge {
             background: var(--primary-light);
             color: var(--primary-color);
-            padding: 3px 10px;
+            padding: 6px 14px;
             border-radius: 20px;
             font-size: 0.9rem;
-            font-weight: bold;
-            margin-bottom: 8px;
+            font-weight: 800;
+            margin-bottom: 12px;
             display: inline-block;
         }
         .quiz-target-info {
-            font-size: 2rem;
-            font-weight: bold;
+            font-size: 2.2rem;
+            font-weight: 900;
             color: var(--primary-color);
             margin: 5px 0 15px 0;
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.05);
         }
 
         .hidden { display: none !important; }
@@ -234,35 +283,50 @@
 </head>
 <body>
     <header>
-        <div class="header-title" onclick="goHome()">🇯🇵 일본어 트레이너</div>
-        <button id="homeBtn" class="home-btn hidden" onclick="goHome()">처음으로</button>
+        <div class="header-title" onclick="goHome()">🇯🇵 가나고 트레이너</div>
+        <button id="homeBtn" class="home-btn hidden" onclick="goHome()">🏠 처음으로</button>
     </header>
 
     <div class="main-container">
         <!-- STEP 1: 문자 종류 선택 -->
         <div id="stepCharSelect" class="card">
-            <div class="section-title">학습할 문자를 선택하세요</div>
+            <div class="hero-emoji">🍡</div>
+            <div class="section-title">오늘도 간바레!</div>
+            <div class="section-desc">어떤 문자를 마스터해볼까요?</div>
+            
             <div class="menu-btn-group">
-                <button class="menu-select-btn" onclick="selectKanaType('hira')">히라가나<br><span style="font-size:0.8rem; color:#6c757d; font-weight:normal;">あいうえお</span></button>
-                <button class="menu-select-btn" onclick="selectKanaType('kata')">가타카나<br><span style="font-size:0.8rem; color:#6c757d; font-weight:normal;">アイウエオ</span></button>
+                <button class="menu-select-btn" onclick="selectKanaType('hira')">
+                    🌸 히라가나
+                    <span class="menu-desc">あいうえお</span>
+                </button>
+                <button class="menu-select-btn" onclick="selectKanaType('kata')">
+                    🍵 가타카나
+                    <span class="menu-desc">アイウエオ</span>
+                </button>
             </div>
         </div>
 
         <!-- STEP 2: 학습/퀴즈 모드 선택 -->
         <div id="stepModeSelect" class="card hidden">
             <button class="back-nav-btn" onclick="goHome()">← 문자 다시 고르기</button>
+            <div class="hero-emoji">🎯</div>
             <div class="section-title" id="selectedTypeTitle" style="margin-top: 5px;">히라가나 학습</div>
+            <div class="section-desc">원하는 학습 방식을 선택하세요!</div>
+
             <div class="menu-btn-group" style="flex-direction: column;">
-                <button class="menu-select-btn" onclick="startMode('study')">✏️ 기본 쓰기 학습</button>
-                <button class="menu-select-btn" onclick="startMode('quiz')">🎯 랜덤 쓰기 퀴즈 (10문항)</button>
+                <button class="menu-select-btn" style="padding:16px 10px;" onclick="startMode('study')">✏️ 기본 쓰기 학습</button>
+                <button class="menu-select-btn" style="padding:16px 10px;" onclick="startMode('quiz')">🔥 랜덤 쓰기 퀴즈 (10문항)</button>
             </div>
         </div>
 
         <!-- STEP 3-1: 기본 쓰기 학습 페이지 -->
-        <div id="modeStudy" class="card hidden" style="padding: 15px;">
+        <div id="modeStudy" class="card hidden" style="padding: 20px 15px;">
             <button class="back-nav-btn" onclick="goToModeSelect()">← 모드 선택으로</button>
-            <div class="grid-container" id="kanaGrid" style="margin-top: 25px;"></div>
-            <div style="font-size: 1rem; font-weight: bold; margin: 6px 0;" id="currentTargetLabel">현재 글자: あ [ 아 (a) ]</div>
+            <div class="grid-container" id="kanaGrid" style="margin-top: 10px;"></div>
+            
+            <div style="background:var(--primary-light); color:var(--primary-color); padding:8px 16px; border-radius:20px; font-weight:800; font-size:1.1rem; margin:10px 0;" id="currentTargetLabel">
+                현재 글자: あ [ 아 (a) ]
+            </div>
             
             <div class="canvas-container">
                 <canvas id="guideCanvas"></canvas>
@@ -270,19 +334,19 @@
             </div>
 
             <div class="controls">
-                <button class="action-btn undo-btn" onclick="studyEnv.undo()">이전 획</button>
-                <button id="clearBtn" class="action-btn" onclick="studyEnv.clear()">전체 지우기</button>
-                <button id="submitBtn" class="action-btn" onclick="checkScore()">채점하기</button>
+                <button class="action-btn undo-btn" onclick="studyEnv.undo()">↩️ 이전 획</button>
+                <button id="clearBtn" class="action-btn" onclick="studyEnv.clear()">🗑️ 지우기</button>
+                <button id="submitBtn" class="action-btn" onclick="checkScore()">💯 채점하기</button>
             </div>
 
-            <div style="height: 45px; margin-top: 5px;">
+            <div style="height: 55px; margin-top: 5px;">
                 <div id="scoreDisplay" class="score-display"></div>
                 <div id="statusMsg" class="status-msg"></div>
             </div>
         </div>
 
         <!-- STEP 3-2: 랜덤 쓰기 퀴즈 페이지 -->
-        <div id="modeQuiz" class="card hidden">
+        <div id="modeQuiz" class="card hidden" style="padding: 20px 15px;">
             <button class="back-nav-btn" onclick="goToModeSelect()">← 모드 선택으로</button>
             <div id="quizTypeBadge" class="quiz-type-badge">히라가나 퀴즈</div>
             <div class="quiz-header-info">
@@ -297,10 +361,10 @@
             </div>
 
             <div class="controls">
-                <button class="action-btn undo-btn" onclick="quizEnv.undo()">이전 획</button>
-                <button class="action-btn" id="quizClearBtn" onclick="quizEnv.clear()">전체 지우기</button>
-                <button class="action-btn" style="background:#1976D2; color:white;" onclick="toggleQuizAnswer()">정답 보기</button>
-                <button class="action-btn" style="background:var(--primary-color); color:white;" onclick="nextQuiz()" id="nextQuizBtn">다음 문제</button>
+                <button class="action-btn undo-btn" onclick="quizEnv.undo()">↩️ 이전 획</button>
+                <button class="action-btn" id="quizClearBtn" onclick="quizEnv.clear()">🗑️ 지우기</button>
+                <button class="action-btn" style="background:var(--accent-color); color:#d81b60;" onclick="toggleQuizAnswer()">👀 정답</button>
+                <button class="action-btn" style="background:var(--primary-color); color:white;" onclick="nextQuiz()" id="nextQuizBtn">다음 ▶</button>
             </div>
         </div>
     </div>
@@ -363,14 +427,12 @@
         let quizIndex = 0;
         let currentQuizChar = 'あ';
 
-        // TTS 오디오 재생 함수 추가
         function playAudio(text) {
             if ('speechSynthesis' in window) {
-                // 기존 재생 중인 음성이 있다면 취소하여 중복 방지
                 window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'ja-JP'; // 일본어 설정
-                utterance.rate = 0.9;     // 학습용이므로 살짝 천천히 재생
+                utterance.lang = 'ja-JP'; 
+                utterance.rate = 0.9;     
                 window.speechSynthesis.speak(utterance);
             }
         }
@@ -407,7 +469,6 @@
                 renderKanaGrid();
                 studyEnv.clear();
                 drawGuide(studyEnv, currentChar);
-                // 모드 시작 시에도 첫 글자 발음 재생
                 playAudio(currentChar); 
             } else if (mode === 'quiz') {
                 document.getElementById('modeQuiz').classList.remove('hidden');
@@ -445,7 +506,7 @@
             drawCtx.lineCap = 'round';
             drawCtx.lineJoin = 'round';
             drawCtx.lineWidth = 11;
-            drawCtx.strokeStyle = '#212529';
+            drawCtx.strokeStyle = '#2c3e50';
 
             function redrawStrokes() {
                 drawCtx.clearRect(0, 0, size, size);
@@ -542,15 +603,12 @@
                 
                 btn.className = className;
                 const info = KANA_INFO[ch] || "";
-                btn.innerHTML = `${ch}<br><span style="font-size:0.75rem; font-weight:normal; color:#6c757d;">${info}</span>`;
+                btn.innerHTML = `${ch}<br><span style="font-size:0.75rem; font-weight:normal; color:#888;">${info}</span>`;
                 
                 btn.onclick = () => {
                     currentChar = ch;
                     document.getElementById('currentTargetLabel').innerText = `현재 글자: ${ch} [ ${KANA_INFO[ch]} ]`;
-                    
-                    // 글자 클릭 시 발음 재생
                     playAudio(ch);
-
                     renderKanaGrid();
                     studyEnv.clear();
                     drawGuide(studyEnv, currentChar);
@@ -577,7 +635,7 @@
             if (score >= 80) {
                 scoreEl.className = 'score-display pass';
                 statusEl.className = 'status-msg pass';
-                statusEl.innerText = '통과 💮';
+                statusEl.innerText = '스고이! 통과 💮';
                 passedChars[currentChar] = true;
                 renderKanaGrid();
             } else {
@@ -640,16 +698,16 @@
                 currentQuizChar = quizList[quizIndex];
                 document.getElementById('quizProgressCount').innerText = `문제 ${quizIndex + 1} / 10`;
                 document.getElementById('quizPromptText').innerText = KANA_INFO[currentQuizChar];
-                document.getElementById('nextQuizBtn').innerText = quizIndex === 9 ? '퀴즈 완료' : '다음 문제';
+                document.getElementById('nextQuizBtn').innerText = quizIndex === 9 ? '완료 🎉' : '다음 ▶';
             } else {
                 document.getElementById('quizProgressCount').innerText = '세트 완료!';
-                document.getElementById('quizPromptText').innerText = '🎉 10문항을 모두 풀었습니다!';
+                document.getElementById('quizPromptText').innerText = '🎉 참 잘했어요!';
                 quizEnv.clear();
                 quizEnv.guideCtx.font = "24px sans-serif";
-                quizEnv.guideCtx.fillStyle = "#2e7d32";
+                quizEnv.guideCtx.fillStyle = "#388e3c";
                 quizEnv.guideCtx.textAlign = "center";
                 quizEnv.guideCtx.fillText("수고하셨습니다!", quizEnv.size / 2, quizEnv.size / 2);
-                document.getElementById('nextQuizBtn').innerText = '다시 풀기';
+                document.getElementById('nextQuizBtn').innerText = '다시 풀기 🔄';
                 quizIndex = -1;
             }
         }
